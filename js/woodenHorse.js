@@ -258,7 +258,7 @@ function draw(gl, n, viewProjMatrix, a_Position, u_MvpMatrix, u_NormalMatrix) {
 
   // Draw a base
   var baseHeight = 2.0;
-  g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
+  g_modelMatrix.setTranslate(0.0, -10.0, 0.0);
   drawSegment(gl, n, g_baseBuffer, viewProjMatrix, a_Position, u_MvpMatrix, u_NormalMatrix);
 
   // Arm1

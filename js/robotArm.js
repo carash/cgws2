@@ -6,6 +6,17 @@ var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
 
 var points = [];
 var colors = [];
+var normals =[];
+
+var lightPosition = vec4(5.0, 5.0, 5.0, 0.0 );
+var lightAmbient = vec4(0.5, 0.5, 0.5, 1.0 );
+var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
+var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0);
+var materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+var materialShininess = 100.0;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -30,15 +41,32 @@ var vertexColors = [
     vec4( 0.0, 1.0, 1.0, 1.0 )   // cyan
 ];
 
+var horse = {
+    render: renderHorse,
+    base: {
+        width: 5.0,
+        height: 2.0
+    },
+    upperArm: {
+        width: 0.5,
+        height: 5.0
+    },
+    lowerArm: {
+        height: 5.0,
+        width: 0.5
+    },
+    pos: [0.0, 0.0, 0.0],
+    rot: [0.0, 0.0, 0.0]
+};
 
 // Parameters controlling the size of the Robot's arm
 
-var BASE_HEIGHT      = 4.0;
-var BASE_WIDTH       = 8.0;
-var LOWER_ARM_HEIGHT = 5.0;
-var LOWER_ARM_WIDTH  = 0.5;
-var UPPER_ARM_HEIGHT = 5.0;
-var UPPER_ARM_WIDTH  = 0.5;
+var BASE_HEIGHT      = 3.0;
+var BASE_WIDTH       = 10.0;
+var LOWER_ARM_HEIGHT = 7.0;
+var LOWER_ARM_WIDTH  = 0.8;
+var UPPER_ARM_HEIGHT = 3.0;
+var UPPER_ARM_WIDTH  = 1;
 
 // Shader transformation matrices
 
@@ -52,6 +80,8 @@ var UpperArm = 2;
 
 
 var theta= [ 0, 0, 0];
+var anim = 0;
+var animSign=1;
 
 var angle = 0;
 
@@ -161,8 +191,15 @@ window.onload = function init() {
     projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
 
-    render();
+    display();
 }
+
+var display = function () {
+    requestAnimFrame(display);
+    var radios = document.getElementsByName('model');
+    renderHorse();
+}
+
 
 //----------------------------------------------------------------------------
 
@@ -199,6 +236,67 @@ function lowerArm()
 }
 
 //----------------------------------------------------------------------------
+
+var renderHorse = function() {
+    console.log("rendering horse")
+    gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    var threshold = 15;
+
+   anim=anim+animSign;
+   if (anim>threshold){
+       animSign=-1;
+   }else if (anim<-threshold){
+       animSign=1;
+   }
+   var wiggle = anim ;
+
+   var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
+   var x = Number(theta[1]) + wiggle;
+   var x2 = Number(theta[1]) + wiggle;
+   modelViewMatrix = rotate(theta[0], 0, 1, 0 );
+   console.log(wiggle)
+
+   base();
+   //right front
+   modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60, 1) );
+   upperArm();
+
+   modelViewMatrix  = mult(modelViewMatrix, translate(0.0 ,horse.upperArm.height-2, 0.0));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(x2+15, -90, 0, 1) );
+   lowerArm();
+
+   //right back
+   modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60, 1) );
+   upperArm();
+
+   modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(x+15, -90, 0, 1) );
+   lowerArm();
+
+   //left front
+   modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60, 1) );
+   upperArm();
+
+   modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
+   lowerArm();
+
+   //left back
+   modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60, 1) );
+   upperArm();
+
+   modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
+   modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
+   lowerArm();
+}
+
+//----------------------------------------------------------------------------
+
 
 
 var render = function() {
