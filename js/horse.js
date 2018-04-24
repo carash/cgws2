@@ -348,7 +348,7 @@ var renderHorse = function() {
 
    //Right Front Leg
    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
-   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60, 1) );
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
    upperArm();
 
    //Right Front Ankle
@@ -358,7 +358,7 @@ var renderHorse = function() {
 
    //right back
    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
-   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60, 1) );
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
    upperArm();
 
    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
@@ -367,7 +367,7 @@ var renderHorse = function() {
 
    //left front
    modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
-   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60, 1) );
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
    upperArm();
 
    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
@@ -376,7 +376,7 @@ var renderHorse = function() {
 
    //left back
    modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
-   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60, 1) );
+   modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
    upperArm();
 
    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
@@ -393,7 +393,7 @@ var render = function() {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
     modelViewMatrix = rotate(theta[Base], 0, 1, 0 );
-    base();
+    base();x
 
     modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0));
     modelViewMatrix = mult(modelViewMatrix, rotate(theta[LowerArm], 0, 0, 1 ));
