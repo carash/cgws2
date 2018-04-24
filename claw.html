@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        attribute vec4 vPosition;
+        attribute vec4 vColor;
+        varying vec4 fColor;
+
+        uniform mat4 modelViewMatrix;
+        uniform mat4 projectionMatrix;
+
+        void main() {
+            fColor = vColor;
+            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+        }
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+
+        precision mediump float;
+
+        varying vec4 fColor;
+
+        void main() {
+            gl_FragColor = fColor;
+        }
+    </script>
+
+    <script type="text/javascript" src="js/Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="js/Common/initShaders.js"></script>
+    <script type="text/javascript" src="js/Common/MV.js"></script>
+    <script type="text/javascript" src="js/claw.js"></script>
+
+    <body>
+        <div class="container" style="margin-top: 50px;">
+            <div class="row">
+                <div class="col-md">
+                    <canvas id="gl-canvas" width="512" height="512">
+                        Oops ... your browser doesn't support the HTML5 canvas element
+                    </canvas>
+                </div>
+                <div class="col-md">
+                    <h1 style="text-align:center; font-weight: bold; border-bottom: 1px solid lightgrey; padding: 0 10px 20px 10px">WebGL Worksheet 2: Claw Model</h1>
+                    <h3 style="text-align: center; margin-top: 40px; margin-bottom: 40px;">Model Control Panel</h3>
+                    <div class="row" style="margin-bottom: 40px;">
+                        <div class="col-md" style="text-align: center;">
+                            <button class="btn btn-default" id="demo" style="font-size: 24px; padding: 10px 20px; font-weight: bold;" disabled="disabled">
+                                DEMO
+                            </button>
+                        </div>
+                        <div class="col-md" style="text-align: center;">
+                            <button class="btn btn-default" id="stop" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
+                                STOP
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        body angle -180
+                        <input id="slider1" type="range" min="-180" max="180" step="10" value="0"/>
+                        180
+                    </div><br/>
+
+                    <div>
+                        lower arm angle -180
+                        <input id="slider2" type="range" min="-180" max="180" step="10" value="0"/>
+                        180
+                    </div><br/>
+
+                    <div>
+                        upper arm angle -180
+                        <input id="slider3" type="range" min="-180" max="180" step="10" value="0"/>
+                        180
+                    </div><br/>
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
+</html>
