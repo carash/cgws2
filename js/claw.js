@@ -125,8 +125,8 @@ clawMachine.lowerArm = {
 
 clawMachine.clawBase = {
 	parent: clawMachine.lowerArm,
-	defaultMat: translate(0.0, 4.0, 0.0),
-	offsetMat: translate(0.0, 4.0, 0.0),
+	defaultMat: translate(0.0, 5.5, 0.0),
+	offsetMat: translate(0.0, 5.5, 0.0),
 	width: 2.3,
 	height: 1.0,
 	calculateMat: calcMat,
@@ -218,10 +218,11 @@ var Base = 0;
 var LowerArm = 1;
 var UpperArm = 2;
 
-var theta = [0, 0, 0, ];
+var theta = [0, 0, 0];
 var anim = 0;
 var animSign = 1;
 var stop = 0;
+var demo = true;
 
 var angle = 0;
 
@@ -423,13 +424,20 @@ function lightBox() {
 
 var clawData = {
 	posx: 0,
-	posy: 0,
-	extend: 0,
-	baseanglex: 0,
-	baseanglex: 0,
+	posz: 0,
+	extend: -1.5,
+	baseraise: 0,
+	baserot: 0,
 	clawangle: 0,
 	clawgrip: 0,
-}
+};
+
+var vx = 0;
+var vy = 0;
+var extend = false;
+var basey = 0;
+var basez = 0;
+var clawopen = false;
 
 var renderClaw = function() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -437,36 +445,48 @@ var renderClaw = function() {
 	modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
 	lightBox();
 
+	if (demo) {
+
+	} else {
+
+	}
+
 	var baseViewMatrix = rotate(theta[0], 0, 1, 0);
 	var pos;
 
+	clawMachine.upperArm.offsetMat = mult(clawMachine.upperArm.defaultMat, translate(clawData.posx, 0, clawData.posx));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.upperArm.calculateMat());
 	drawComponent(clawMachine.upperArm);
 
+	clawMachine.lowerArm.offsetMat = mult(clawMachine.lowerArm.defaultMat, translate(0, clawData.extend, 0));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerArm.calculateMat());
 	drawComponent(clawMachine.lowerArm);
 
+	clawMachine.clawBase.offsetMat = mult(clawMachine.clawBase.defaultMat, mult(rotate(clawData.baserot, 0, 90, 0), rotate(clawData.baseraise, 0, 0, 90)));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.clawBase.calculateMat());
 	drawComponent(clawMachine.clawBase);
 
-	clawMachine.upperClaw1.offsetMat = mult(clawMachine.upperClaw1.defaultMat, rotate(clawData.clawangle, 0, 0, 90))
+	clawMachine.upperClaw1.offsetMat = mult(clawMachine.upperClaw1.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw1.calculateMat());
 	drawComponent(clawMachine.upperClaw1);
 
+	clawMachine.lowerClaw1.offsetMat = mult(clawMachine.lowerClaw1.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw1.calculateMat());
 	drawComponent(clawMachine.lowerClaw1);
 
-	clawMachine.upperClaw2.offsetMat = mult(clawMachine.upperClaw2.defaultMat, rotate(clawData.clawangle, 0, 0, 90))
+	clawMachine.upperClaw2.offsetMat = mult(clawMachine.upperClaw2.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw2.calculateMat());
 	drawComponent(clawMachine.upperClaw2);
 
+	clawMachine.lowerClaw2.offsetMat = mult(clawMachine.lowerClaw2.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw2.calculateMat());
 	drawComponent(clawMachine.lowerClaw2);
 
-	clawMachine.upperClaw3.offsetMat = mult(clawMachine.upperClaw3.defaultMat, rotate(clawData.clawangle, 0, 0, 90))
+	clawMachine.upperClaw3.offsetMat = mult(clawMachine.upperClaw3.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw3.calculateMat());
 	drawComponent(clawMachine.upperClaw3);
 
+	clawMachine.lowerClaw3.offsetMat = mult(clawMachine.lowerClaw3.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
 	drawComponent(clawMachine.lowerClaw3);
 };
