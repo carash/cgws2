@@ -434,10 +434,10 @@ var clawData = {
 
 var vx = 0;
 var vy = 0;
-var extend = false;
+var extend = 0;
 var basey = 0;
 var basez = 0;
-var clawopen = false;
+var clawopen = 0;
 
 var renderClaw = function() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -446,7 +446,33 @@ var renderClaw = function() {
 	lightBox();
 
 	if (demo) {
+		// moving posx
+		if (vx == 0) vx = 1;
+		if (clawData.posx >= 5) vx = -1;
+		if (clawData.posx <= -5) vx = 1;
+		clawData.posx += 0.05 * vx;
 
+		// moving extend
+		if (extend == 0) extend = 1;
+		if (clawData.extend >= 1.5) extend = -1;
+		if (clawData.extend <= -1.5) extend = 1;
+		clawData.extend += 0.035 * extend;
+
+		// moving basey
+		if (basey == 0) basey = 1;
+		if (clawData.baseraise >= 90) basey = -1;
+		if (clawData.baseraise <= -90) basey = 1;
+		clawData.baseraise += 0.7 * basey;
+
+		// rotating basez
+		basez = 1;
+		clawData.baserot += 1 * basez;
+
+		// opening claw
+		if (clawopen == 0) clawopen = 1;
+		if (clawData.clawangle >= 25) clawopen = -1;
+		if (clawData.clawangle <= -25) clawopen = 1;
+		clawData.clawangle += 0.5 * clawopen;
 	} else {
 
 	}
