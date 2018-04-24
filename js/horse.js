@@ -35,14 +35,14 @@ var vertices = [
 
 // RGBA colors
 var vertexColors = [
-    vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
-    vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
-    vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
-    vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
-    vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
-    vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
+    vec4( 1.0, 1.0, 1.0, 1.0 ),  // black
+    vec4( 1.0, 1.0, 1.0, 1.0 ),  // red
+    vec4( 1.0, 1.0, 1.0, 1.0 ),  // yellow
+    vec4( 1.0, 1.0, 1.0, 1.0 ),  // green
+    vec4( 1.0, 1.0, 1.0, 1.0 ),  // blue
+    vec4( 1.0, 1.0, 1.0, 1.0 ),  // magenta
     vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
-    vec4( 0.0, 1.0, 1.0, 1.0 )   // cyan
+    vec4( 1.0, 1.0, 1.0, 1.0 )   // cyan
 ];
 
 var horse = {
@@ -91,6 +91,7 @@ var stop = 0;
 var angle = 0;
 
 var modelViewMatrixLoc;
+var normalMatrix;
 
 var vBuffer, cBuffer;
 
@@ -156,7 +157,7 @@ window.onload = function init() {
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
 
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+    gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
     gl.enable( gl.DEPTH_TEST );
 
     //
@@ -244,6 +245,7 @@ window.onload = function init() {
     };
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+	normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
     projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
@@ -260,12 +262,16 @@ var display = function () {
 
 //----------------------------------------------------------------------------
 
+var g_normalMatrix = new mat4();  // Coordinate transformation matrix for normals
 
 function base() {
     var s = scale4(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+	g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 }
 
@@ -277,6 +283,9 @@ function upperArm() {
     var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+	g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 }
 
@@ -289,6 +298,9 @@ function lowerArm()
     var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+	g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 }
 
@@ -299,6 +311,9 @@ function lightBox() {
     var instanceMatrix = mult( translate( -5.0, 1.0, 1.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+	g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 }
 
@@ -308,7 +323,7 @@ var renderHorse = function() {
     gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
-    lightBox();
+    //lightBox();
 
     var threshold = 15;
 

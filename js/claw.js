@@ -39,14 +39,14 @@ var vertices = [
 
 // RGBA colors
 var vertexColors = [
-	vec4(0.0, 0.0, 0.0, 1.0), // black
-	vec4(1.0, 0.0, 0.0, 1.0), // red
-	vec4(1.0, 1.0, 0.0, 1.0), // yellow
-	vec4(0.0, 1.0, 0.0, 1.0), // green
-	vec4(0.0, 0.0, 1.0, 1.0), // blue
-	vec4(1.0, 0.0, 1.0, 1.0), // magenta
+	vec4(1.0, 1.0, 1.0, 1.0), // black
+	vec4(1.0, 1.0, 1.0, 1.0), // red
+	vec4(1.0, 1.0, 1.0, 1.0), // yellow
+	vec4(1.0, 1.0, 1.0, 1.0), // green
+	vec4(1.0, 1.0, 1.0, 1.0), // blue
+	vec4(1.0, 1.0, 1.0, 1.0), // magenta
 	vec4(1.0, 1.0, 1.0, 1.0), // white
-	vec4(0.0, 1.0, 1.0, 1.0), // cyan
+	vec4(1.0, 1.0, 1.0, 1.0), // cyan
 ];
 
 var calcMat = function() {
@@ -165,6 +165,7 @@ var theta = [0, 0, 0];
 var demo = true;
 
 var modelViewMatrixLoc;
+var normalMatrix;
 
 var vBuffer,
 	cBuffer;
@@ -248,7 +249,7 @@ window.onload = function init() {
 
 	gl.viewport(0, 0, canvas.width, canvas.height);
 
-	gl.clearColor(1.0, 1.0, 1.0, 1.0);
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 
 	//
@@ -401,6 +402,7 @@ window.onload = function init() {
 	}
 
 	modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
+	normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
 	projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
 	gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
@@ -416,12 +418,17 @@ var display = function() {
 
 // ----------------------------------------------------------------------------
 
+var g_normalMatrix = new mat4();
+
 function drawComponent(comp) {
 	var s = scale4(comp.width, comp.height, comp.width);
 	var instanceMatrix = mult(translate(0.0, 0.5 * comp.height, 0.0), s);
 
 	var t = mult(modelViewMatrix, instanceMatrix);
 	gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
+	g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
 	gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
@@ -451,7 +458,7 @@ var renderClaw = function() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
-	lightBox();
+	//lightBox();
 
 	if (demo) {
 		// moving posx
