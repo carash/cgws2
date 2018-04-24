@@ -18,6 +18,10 @@ var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0);
 var materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
 var materialShininess = 100.0;
 
+var ctm;
+var ambientColor, diffuseColor, specularColor;
+var viewerPos;
+
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
     vec4( -0.5,  0.5,  0.5, 1.0 ),
@@ -82,6 +86,7 @@ var UpperArm = 2;
 var theta= [ 0, 0, 0];
 var anim = 0;
 var animSign=1;
+var stop = 0;
 
 var angle = 0;
 
@@ -92,18 +97,28 @@ var vBuffer, cBuffer;
 //----------------------------------------------------------------------------
 
 function quad(  a,  b,  c,  d ) {
+    var t1 = subtract(vertices[b], vertices[a]);
+    var t2 = subtract(vertices[c], vertices[b]);
+    var normal = cross(t1, t2);
+    var normal = vec3(normal);
     colors.push(vertexColors[a]);
     points.push(vertices[a]);
+    normals.push(normal)
     colors.push(vertexColors[a]);
     points.push(vertices[b]);
+    normals.push(normal)
     colors.push(vertexColors[a]);
     points.push(vertices[c]);
+    normals.push(normal)
     colors.push(vertexColors[a]);
     points.push(vertices[a]);
+    normals.push(normal)
     colors.push(vertexColors[a]);
     points.push(vertices[c]);
+    normals.push(normal)
     colors.push(vertexColors[a]);
     points.push(vertices[d]);
+    normals.push(normal)
 }
 
 
@@ -160,21 +175,63 @@ window.onload = function init() {
 
     // Create and initialize  buffer objects
 
-    vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+    // normals
+   var nBuffer = gl.createBuffer();
+   gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
+   gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
 
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+   var vNormal = gl.getAttribLocation( program, "vNormal" );
+   gl.vertexAttribPointer( vNormal, 3, gl.FLOAT, false, 0, 0 );
+   gl.enableVertexAttribArray( vNormal );
 
-    cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+   // positions
+   vBuffer = gl.createBuffer();
+   gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
+   gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
+   var vPosition = gl.getAttribLocation( program, "vPosition" );
+   gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
+   gl.enableVertexAttribArray( vPosition );
+
+   //colors
+   cBuffer = gl.createBuffer();
+   gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
+   gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+
+   var vColor = gl.getAttribLocation( program, "vColor" );
+   gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+   gl.enableVertexAttribArray( vColor );
+
+   // shades
+   viewerPos = vec3(0.0, 0.0, -20.0 );
+
+   var ambientProduct = mult(lightAmbient, materialAmbient);
+   var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+   var specularProduct = mult(lightSpecular, materialSpecular);
+
+   gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
+      flatten(ambientProduct));
+   gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
+      flatten(diffuseProduct) );
+   gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
+      flatten(specularProduct) );
+   gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
+      flatten(lightPosition) );
+
+   gl.uniform1f(gl.getUniformLocation(program,
+      "shininess"),materialShininess);
+
+      document.getElementById("stop").onclick = function(event) {
+          stop = 1;
+          document.getElementById("stop").disabled = true;
+          document.getElementById("demo").disabled = false;
+      }
+
+      document.getElementById("demo").onclick = function(event) {
+          stop = 0;
+          document.getElementById("stop").disabled = false;
+          document.getElementById("demo").disabled = true;
+      }
 
     document.getElementById("slider1").onchange = function(event) {
         theta[0] = event.target.value;
@@ -235,34 +292,66 @@ function lowerArm()
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 }
 
-//----------------------------------------------------------------------------
+//--------------------------------------------------------------------------
+
+function lightBox() {
+    var s = scale4(1.0, 1.0, 1.0);
+    var instanceMatrix = mult( translate( -5.0, 1.0, 1.0 ), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+//----------------------------------------------------------------------------------
 
 var renderHorse = function() {
-    console.log("rendering horse")
     gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
+    lightBox();
 
     var threshold = 15;
 
-   anim=anim+animSign;
-   if (anim>threshold){
-       animSign=-1;
-   }else if (anim<-threshold){
-       animSign=1;
-   }
-   var wiggle = anim ;
+    if (stop == 0) {
+        anim=anim+animSign;
+        if (anim>threshold){
+           animSign=-1;
+        }else if (anim<-threshold){
+           animSign=1;
+        }
+        var wiggle = anim ;
+
 
    var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
    var x = Number(theta[1]) + wiggle;
    var x2 = Number(theta[1]) + wiggle;
    modelViewMatrix = rotate(theta[0], 0, 1, 0 );
-   console.log(wiggle)
+
+} else {
+        anim=anim+animSign;
+        if (anim>threshold){
+           animSign=0;
+        }else if (anim<-threshold){
+           animSign=0;
+        }
+        var wiggle = anim ;
+
+
+   var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
+   var x = Number(theta[1]) + wiggle;
+   var x2 = Number(theta[1]) + wiggle;
+   modelViewMatrix = rotate(theta[0], 0, 1, 0 );
+
+    }
 
    base();
-   //right front
+
+   //Right Front Leg
    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60, 1) );
    upperArm();
 
+   //Right Front Ankle
    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 ,horse.upperArm.height-2, 0.0));
    modelViewMatrix  = mult(modelViewMatrix, rotate(x2+15, -90, 0, 1) );
    lowerArm();
