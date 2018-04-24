@@ -49,42 +49,6 @@ var vertexColors = [
 	vec4(0.0, 1.0, 1.0, 1.0), // cyan
 ];
 
-var worldPos = function() {
-	var pos = [0, 0, 0]
-	var curr = this
-
-	while (curr.parent) {
-		pos[0] += curr.offset[0];
-		pos[1] += curr.offset[1];
-		pos[2] += curr.offset[2];
-		curr = curr.parent
-	}
-
-	pos[0] += curr.offset[0];
-	pos[1] += curr.offset[1];
-	pos[2] += curr.offset[2];
-
-	return pos
-}
-
-var worldMat = function() {
-	var mat = translate(0, 0, 0);
-	var par = [this.offsetMat];
-	var curr = this.parent;
-
-	while (curr) {
-		par.push(curr.offsetMat);
-		curr = curr.parent;
-	}
-
-	par.reverse()
-	par.forEach(function(m) {
-		mat = mult(mat, m);
-	});
-
-	return mat
-}
-
 var calcMat = function() {
 	var mat = translate(0, 0, 0);
 	var par = [this.offsetMat];
@@ -186,27 +150,6 @@ clawMachine.lowerClaw3 = {
 	calculateMat: calcMat,
 };
 
-var renderObjects = [
-	clawMachine.upperArm,
-	clawMachine.lowerArm,
-	clawMachine.clawBase,
-	clawMachine.upperClaw1,
-	clawMachine.lowerClaw1,
-	clawMachine.upperClaw2,
-	clawMachine.lowerClaw2,
-	clawMachine.upperClaw3,
-	clawMachine.lowerClaw3,
-];
-
-// Parameters controlling the size of the Robot's arm
-
-var BASE_HEIGHT = 3.0;
-var BASE_WIDTH = 10.0;
-var LOWER_ARM_HEIGHT = 7.0;
-var LOWER_ARM_WIDTH = 0.8;
-var UPPER_ARM_HEIGHT = 3.0;
-var UPPER_ARM_WIDTH = 1;
-
 // Shader transformation matrices
 
 var modelViewMatrix,
@@ -219,12 +162,7 @@ var LowerArm = 1;
 var UpperArm = 2;
 
 var theta = [0, 0, 0];
-var anim = 0;
-var animSign = 1;
-var stop = 0;
 var demo = true;
-
-var angle = 0;
 
 var modelViewMatrixLoc;
 
@@ -280,6 +218,23 @@ function scale4(a, b, c) {
 	result[2][2] = c;
 	return result;
 }
+
+var clawData = {
+	posx: 0,
+	posz: 0,
+	extend: -1.5,
+	baseraise: 0,
+	baserot: 0,
+	clawangle: 0,
+	clawgrip: 0,
+};
+
+var vx = 0;
+var vz = 0;
+var extend = 0;
+var basey = 0;
+var basez = 0;
+var clawopen = 0;
 
 // --------------------------------------------------
 
@@ -354,26 +309,96 @@ window.onload = function init() {
 	gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
 
 	document.getElementById("stop").onclick = function(event) {
-		stop = 1;
+		demo = false;
+
+		vx = 0;
+		vz = 0;
+		extend = -1;
+		basey = 0;
+		basez = 0;
+		clawopen = -1;
+
 		document.getElementById("stop").disabled = true;
 		document.getElementById("demo").disabled = false;
 	};
 
 	document.getElementById("demo").onclick = function(event) {
-		stop = 0;
+		demo = true;
 		document.getElementById("stop").disabled = false;
 		document.getElementById("demo").disabled = true;
 	};
 
-	document.getElementById("slider1").onchange = function(event) {
-		theta[0] = event.target.value;
-	};
-	document.getElementById("slider2").onchange = function(event) {
-		theta[1] = event.target.value;
-	};
-	document.getElementById("slider3").onchange = function(event) {
-		theta[2] = event.target.value;
-	};
+	document.onkeydown = function(event) {
+		if (demo) return;
+		switch (event.key) {
+			case "Enter":
+				extend = 1;
+				break;
+			case "ArrowLeft":
+				vx = 1;
+				break;
+			case "ArrowRight":
+				vx = -1;
+				break;
+			case "ArrowUp":
+				vz = 1;
+				break;
+			case "ArrowDown":
+				vz = -1;
+				break;
+			case " ":
+				clawopen = 1;
+				break;
+			case "a":
+				basez = 1;
+				break;
+			case "d":
+				basez = -1;
+				break;
+			case "w":
+				basey = 1;
+				break;
+			case "s":
+				basey = -1;
+				break;
+		}
+	}
+
+	document.onkeyup = function(event) {
+		if (demo) return;
+		switch (event.key) {
+			case "Enter":
+				extend = -1;
+				break;
+			case "ArrowLeft":
+				vx = 0;
+				break;
+			case "ArrowRight":
+				vx = 0;
+				break;
+			case "ArrowUp":
+				vz = 0;
+				break;
+			case "ArrowDown":
+				vz = 0;
+				break;
+			case " ":
+				clawopen = -1;
+				break;
+			case "a":
+				basez = 0;
+				break;
+			case "d":
+				basez = 0;
+				break;
+			case "w":
+				basey = 0;
+				break;
+			case "s":
+				basey = 0;
+				break;
+		}
+	}
 
 	modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
 
@@ -422,23 +447,6 @@ function lightBox() {
 
 // ----------------------------------------------------------------------------------
 
-var clawData = {
-	posx: 0,
-	posz: 0,
-	extend: -1.5,
-	baseraise: 0,
-	baserot: 0,
-	clawangle: 0,
-	clawgrip: 0,
-};
-
-var vx = 0;
-var vy = 0;
-var extend = 0;
-var basey = 0;
-var basez = 0;
-var clawopen = 0;
-
 var renderClaw = function() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -461,7 +469,7 @@ var renderClaw = function() {
 		// moving basey
 		if (basey == 0) basey = 1;
 		if (clawData.baseraise >= 90) basey = -1;
-		if (clawData.baseraise <= -90) basey = 1;
+		if (clawData.baseraise <= 0) basey = 1;
 		clawData.baseraise += 0.7 * basey;
 
 		// rotating basez
@@ -474,7 +482,11 @@ var renderClaw = function() {
 		if (clawData.clawangle <= -25) clawopen = 1;
 		clawData.clawangle += 0.5 * clawopen;
 	} else {
-
+		if ((vx > 0 && clawData.posx < 5) || (vx < 0 && clawData.posx > -5)) clawData.posx += 0.05 * vx;
+		if ((extend > 0 && clawData.extend < 1.5) || (extend < 0 && clawData.extend > -1.5)) clawData.extend += 0.035 * extend;
+		if ((basey > 0 && clawData.baseraise < 90) || (basey < 0 && clawData.baseraise > 0)) clawData.baseraise += 0.7 * basey;
+		clawData.baserot += 1 * basez;
+		if ((clawopen > 0 && clawData.clawangle < 25) || (clawopen < 0 && clawData.clawangle > -25)) clawData.clawangle += 1.5 * clawopen;
 	}
 
 	var baseViewMatrix = rotate(theta[0], 0, 1, 0);
