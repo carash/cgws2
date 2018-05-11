@@ -47,8 +47,12 @@ void main()
             </canvas>
         </div>
         <div class="col-md">
-            <h1 style="text-align:center; font-weight: bold; border-bottom: 1px solid lightgrey; padding: 0 10px 20px 10px">WebGL Worksheet 2: Horse Model</h1>
+            <h1 style="text-align:center; font-weight: bold; border-bottom: 1px solid lightgrey; padding: 0 10px 20px 10px">WebGL Worksheet 3</h1>
             <h3 style="text-align: center; margin-top: 40px; margin-bottom: 40px;">Model Control Panel</h3>
+			<form action="" autocomplete="off">
+		        <input type="radio" name="radio" value="horse" checked="checked">Horse<br>
+		        <input type="radio" name="radio" value="claw">Claw<br>
+		    </form>
             <div class="row" style="margin-bottom: 40px;">
                 <div class="col-md" style="text-align: center;">
                     <button class="btn btn-default" id="demo" style="font-size: 24px; padding: 10px 20px; font-weight: bold;" disabled> DEMO </button>
@@ -57,26 +61,45 @@ void main()
                     <button class="btn btn-default" id="stop" style="font-size: 24px; padding: 10px 20px; font-weight: bold;"> STOP </button>
                 </div>
             </div>
-            <div>
-            body angle -180 <input id="slider1" type="range"
-             min="-180" max="180" step="10" value="0"
-              />
-             180
-            </div><br/>
+			<div id="horseParam">
+            	<div>
+	            body angle -180 <input id="slider1" type="range"
+	             min="-180" max="180" step="10" value="0"
+	              />
+	             180
+	            </div><br/>
 
-            <div>
-            lower arm angle -15 <input id="slider2" type="range"
-             min="-15" max="15" step="1" value="0"
-              />
-             15
-            </div><br/>
+	            <div>
+	            lower arm angle -15 <input id="slider2" type="range"
+	             min="-15" max="15" step="1" value="0"
+	              />
+	             15
+	            </div><br/>
 
-            <div>
-            upper arm angle -15 <input id="slider3" type="range"
-             min="-15" max="15" step="1" value="0"
-              />
-             15
-            </div><br/>
+	            <div>
+	            upper arm angle -15 <input id="slider3" type="range"
+	             min="-15" max="15" step="1" value="0"
+	              />
+	             15
+	            </div><br/>
+			</div>
+			<div id="clawParam">
+				<span>
+					<pre>hold <strong>&lt;Enter&gt;</strong> to extend arm, release to retract</pre>
+				</span>
+				<span>
+					<pre>hold <strong>&lt;Space&gt;</strong> to close claw, release to release</pre>
+				</span>
+				<span>
+					<pre>hold <strong>&lt;left&gt;</strong>/<strong>&lt;right&gt;</strong> to move left/right</pre>
+				</span>
+				<span>
+					<pre>hold <strong>&lt;a&gt;</strong>/<strong>&lt;d&gt;</strong> to rotate CW/CCW</pre>
+				</span>
+				<span>
+					<pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
+				</span>
+			</div>
         </div>
     </div>
 </div>

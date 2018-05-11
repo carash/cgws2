@@ -1,3 +1,10 @@
+/**
+    File claw.js memodelkan suatu lengan dengan 3 buah jari berupa cakar penggengam. Ketiga jari cakar saling terhubung dengan suatu tangan yang terhubung dengan lengan. Jari-jari cakar dapat di buka-tutup
+	Lengan dari cakar dapat diextend, tangan dari cakar dapat berputar pada porosnya dan dapat di tilt
+
+    Dibuat oleh Wibisana Bramawidya & Achmad Firdaus
+**/
+
 "use strict";
 
 var canvas,
