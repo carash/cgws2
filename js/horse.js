@@ -70,6 +70,15 @@ var horse = {
     rot: [0.0, 0.0, 0.0]
 };
 
+var wall = {
+    base: {
+        width: 5.0,
+        height: 20.0
+    },
+    pos: [0.0, 0.0, 0.0],
+    rot: [0.0, 0.0, 0.0]
+};
+
 var calcMat = function() {
     var mat = translate(0, 0, 0);
     var par = [this.offsetMat];
@@ -179,10 +188,12 @@ var LOWER_ARM_HEIGHT = 7.0;
 var LOWER_ARM_WIDTH  = 0.8;
 var UPPER_ARM_HEIGHT = 3.0;
 var UPPER_ARM_WIDTH  = 1;
+var WALL_WIDTH  = 1.0;
+var WALL_HEIGHT  = 40.0;
 
 // Shader transformation matrices
 
-var modelViewMatrix, projectionMatrix;
+var modelViewMatrix, projectionMatrix, wallviewMatrix;
 
 // Array of rotation angles (in degrees) for each rotation axis
 
@@ -540,6 +551,22 @@ function lowerArm()
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
 }
 
+//----------------------------------------------------------------------------
+
+
+function walls()
+{
+    var s = scale4(WALL_WIDTH, WALL_HEIGHT, WALL_HEIGHT);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+    g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+
 //--------------------------------------------------------------------------
 
 function lightBox() {
@@ -633,6 +660,16 @@ var renderHorse = function() {
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
     lowerArm();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(WALL_WIDTH*10 , -wall.base.height/4 , 3.0));
+    walls();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(-WALL_WIDTH*10 , -wall.base.height/4 , 3.0));
+    walls();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    walls();
 }
 
 //----------------------------------------------------------------------------
