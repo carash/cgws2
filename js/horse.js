@@ -15,7 +15,7 @@ var points = [];
 var colors = [];
 var normals =[];
 
-var lightPosition = vec4(5.0, 5.0, 5.0, 0.0 );
+var lightPosition = vec4(0.0, 0.0, 0.0, 0.0 );
 var lightAmbient = vec4(0.5, 0.5, 0.5, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
@@ -28,6 +28,8 @@ var materialShininess = 100.0;
 var ctm;
 var ambientColor, diffuseColor, specularColor;
 var viewerPos;
+
+var isForward;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -463,6 +465,21 @@ var display = function () {
     requestAnimFrame(display);
     var radios = document.getElementsByName('radio');
 
+	if(isForward) {
+		lightPosition[0] += 0.1;
+		lightPosition[1] += 0.1;
+	} else {
+		lightPosition[0] -= 0.1;
+		lightPosition[1] -= 0.1;
+	}
+	
+	if(lightPosition[1] > 10 || lightPosition[1] < -10) {
+		isForward = !isForward;
+	}
+
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
+    flatten(lightPosition) );
+	
     for (var i = 0, length = radios.length; i < length; i++) {
         if (radios[i].checked && radios[i].value == "horse") {
             // do whatever you want with the checked radio
@@ -544,7 +561,7 @@ function lowerArm()
 
 function lightBox() {
     var s = scale4(1.0, 1.0, 1.0);
-    var instanceMatrix = mult( translate( -5.0, 1.0, 1.0 ), s);
+    var instanceMatrix = mult( translate( 0.0, 0.0, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
@@ -559,7 +576,7 @@ var renderHorse = function() {
     gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
-    //lightBox();
+    lightBox();
 
     var threshold = 15;
 
@@ -641,7 +658,7 @@ var renderClaw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
-    //lightBox();
+    lightBox();
 
     if (demo) {
         // moving posx
@@ -718,25 +735,3 @@ var renderClaw = function() {
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
     drawComponent(clawMachine.lowerClaw3);
 };
-
-//-------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-var render = function() {
-
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
-
-    modelViewMatrix = rotate(theta[Base], 0, 1, 0 );
-    base();x
-
-    modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0));
-    modelViewMatrix = mult(modelViewMatrix, rotate(theta[LowerArm], 0, 0, 1 ));
-    lowerArm();
-
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[UpperArm], 0, 0, 1) );
-    upperArm();
-
-    requestAnimFrame(render);
-}
