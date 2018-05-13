@@ -17,7 +17,7 @@ var normals =[];
 var numChecks = 32;
 var texSize = 64;
 
-var lightPosition = vec4(0.0, 0.0, 0.0, 0.0 );
+var lightPosition = vec4(0.0, 0.0, 5.0, 0.0 );
 var lightAmbient = vec4(0.5, 0.5, 0.5, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
@@ -32,6 +32,7 @@ var ambientColor, diffuseColor, specularColor;
 var viewerPos;
 
 var isForward;
+var isOn = 1;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -602,6 +603,7 @@ var display = function () {
     requestAnimFrame(display);
     var radios = document.getElementsByName('radio');
     var materials = document.getElementsByName('material');
+    var onLight = document.getElementsByName('onLight');
 
 	if(isForward) {
 		lightPosition[0] += 0.1;
@@ -617,7 +619,19 @@ var display = function () {
 
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
     flatten(lightPosition) );
-
+	
+	for (var i = 0, length = onLight.length; i < length; i++) {
+        if (onLight[i].checked && onLight[i].value == "on") {
+            isOn = 1;
+            break;
+        } else if (onLight[i].checked && onLight[i].value == "off") {
+            isOn = 0;
+            break;
+        }
+    }
+	
+    gl.uniform1i(gl.getUniformLocation(program, "isOn"), isOn);
+	
     for (var i = 0, length = materials.length; i < length; i++) {
         if (materials[i].checked && materials[i].value == "gloss") {
             // do whatever you want with the checked radio
@@ -881,11 +895,11 @@ var renderHorse = function() {
     configureTexture(image2);
     lowerArm();
 
-/**
-    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
-    walls();
-*/
+
+    // modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
+    // modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    // walls();
+
 }
 
 //----------------------------------------------------------------------------
