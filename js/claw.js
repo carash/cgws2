@@ -541,6 +541,9 @@ var renderClaw = function() {
 	clawMachine.lowerClaw3.offsetMat = mult(clawMachine.lowerClaw3.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
 	modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
 	drawComponent(clawMachine.lowerClaw3);
+
+	modelViewMatrix  = mult(wallviewMatrix, translate(WALL_WIDTH*10 , -wall.base.height/4 , 3.0));
+	walls();
 };
 
 // ----------------------------------------------------------------------------

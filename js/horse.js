@@ -475,6 +475,7 @@ window.onload = function init() {
 var display = function () {
     requestAnimFrame(display);
     var radios = document.getElementsByName('radio');
+    var materials = document.getElementsByName('material');
 
 	if(isForward) {
 		lightPosition[0] += 0.1;
@@ -483,14 +484,79 @@ var display = function () {
 		lightPosition[0] -= 0.1;
 		lightPosition[1] -= 0.1;
 	}
-	
+
 	if(lightPosition[1] > 10 || lightPosition[1] < -10) {
 		isForward = !isForward;
 	}
 
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
     flatten(lightPosition) );
-	
+
+    for (var i = 0, length = materials.length; i < length; i++) {
+        if (materials[i].checked && materials[i].value == "gloss") {
+            // do whatever you want with the checked radio
+            materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+            materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0);
+            materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+            materialShininess = 100.0;
+            var ambientProduct = mult(lightAmbient, materialAmbient);
+            var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+            var specularProduct = mult(lightSpecular, materialSpecular);
+            gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
+            flatten(ambientProduct));
+            gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
+            flatten(diffuseProduct) );
+            gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
+            flatten(specularProduct) );
+            gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
+            flatten(lightPosition) );
+            gl.uniform1f(gl.getUniformLocation(program,
+                "shininess"),materialShininess);
+            // only one radio can be logically checked, don't check the rest
+            break;
+        } else if (materials[i].checked && materials[i].value == "matte") {
+            materialAmbient = vec4( 0.5, 0.5, 0.5, 1.0 );
+            materialDiffuse = vec4( 0.3, 0.4, 0.5, 1.0);
+            materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+            materialShininess = 250.0;
+            var ambientProduct = mult(lightAmbient, materialAmbient);
+            var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+            var specularProduct = mult(lightSpecular, materialSpecular);
+            gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
+            flatten(ambientProduct));
+            gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
+            flatten(diffuseProduct) );
+            gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
+            flatten(specularProduct) );
+            gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
+            flatten(lightPosition) );
+            gl.uniform1f(gl.getUniformLocation(program,
+                "shininess"),materialShininess);
+            break;
+        }
+
+         else if (materials[i].checked && materials[i].value == "metallic") {
+            materialAmbient = vec4( 0.3, 0.5, 0.9, 1.0 );
+            materialDiffuse = vec4( 0.5, 0.6, 0.7, 7.0);
+            materialSpecular = vec4( 0.2, 0.2, 0.0, 1.0 );
+            materialShininess = 50.0;
+            var ambientProduct = mult(lightAmbient, materialAmbient);
+            var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+            var specularProduct = mult(lightSpecular, materialSpecular);
+            gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
+            flatten(ambientProduct));
+            gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
+            flatten(diffuseProduct) );
+            gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
+            flatten(specularProduct) );
+            gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
+            flatten(lightPosition) );
+            gl.uniform1f(gl.getUniformLocation(program,
+                "shininess"),materialShininess);
+            break;
+        }
+    }
+
     for (var i = 0, length = radios.length; i < length; i++) {
         if (radios[i].checked && radios[i].value == "horse") {
             // do whatever you want with the checked radio
@@ -618,6 +684,7 @@ var renderHorse = function() {
 
 
         var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
+        var wallviewMatrix = rotate(0,0,1,0);
         var x = Number(theta[1]) + wiggle;
         var x2 = Number(theta[1]) + wiggle;
         modelViewMatrix = rotate(theta[0], 0, 1, 0 );
@@ -633,6 +700,7 @@ var renderHorse = function() {
 
 
         var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
+        var wallviewMatrix = rotate(0,0,1,0);
         var x = Number(theta[1]) + wiggle;
         var x2 = Number(theta[1]) + wiggle;
         modelViewMatrix = rotate(theta[0], 0, 1, 0 );
@@ -678,15 +746,11 @@ var renderHorse = function() {
     modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
     lowerArm();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(WALL_WIDTH*10 , -wall.base.height/4 , 3.0));
-    walls();
-
-    modelViewMatrix  = mult(baseViewMatrix, translate(-WALL_WIDTH*10 , -wall.base.height/4 , 3.0));
-    walls();
-
-    modelViewMatrix  = mult(baseViewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
+/**
+    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
     modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
     walls();
+*/
 }
 
 //----------------------------------------------------------------------------
@@ -695,6 +759,7 @@ var renderClaw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
+    var wallviewMatrix = rotate(0,0,1,0);
     lightBox();
 
     if (demo) {
@@ -771,4 +836,11 @@ var renderClaw = function() {
     clawMachine.lowerClaw3.offsetMat = mult(clawMachine.lowerClaw3.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
     drawComponent(clawMachine.lowerClaw3);
+
+    /**
+    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    walls();
+    */
+
 };

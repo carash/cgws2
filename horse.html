@@ -17,8 +17,8 @@ uniform float shininess;
 
 void main() {
 	vec3 pos = -(modelViewMatrix * vPosition).xyz;
-   
-    //fixed light postion 
+
+    //fixed light postion
     vec3 light = lightPosition.xyz;
     vec3 L = normalize( light - pos );
 	vec3 E = normalize( -pos );
@@ -36,16 +36,16 @@ void main() {
 
     float Ks = pow(max(dot(N, H), 0.0), shininess );
     vec4  specular = Ks * specularProduct;
-    
+
     if( dot(L, N) < 0.0 ) {
 	specular = vec4(0.0, 0.0, 0.0, 1.0);
-    } 
+    }
 
     gl_Position = projectionMatrix * modelViewMatrix * vPosition;
     fColor = ambient + diffuse +specular;
-    
+
     fColor.a = 1.0;
-	
+
 	//vec3 lightDirection = normalize(vec3(0.0, 0.0, 1.0));
 	//vec3 normal = normalize((normalMatrix * vNormal).xyz);
 	//float nDotL = max(dot(normal, lightDirection), 0.0);
@@ -133,6 +133,11 @@ void main()
 					<pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
 				</span>
 			</div>
+			<form action="" autocomplete="off">
+				<input type="radio" name="material" value="gloss" checked="checked">Copper<br>
+				<input type="radio" name="material" value="matte">Brushed Metal<br>
+				<input type="radio" name="material" value="metallic">Stainless Steel<br>
+			</form>
         </div>
     </div>
 </div>
