@@ -14,6 +14,8 @@ var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
 var points = [];
 var colors = [];
 var normals =[];
+var numChecks = 32;
+var texSize = 64;
 
 var lightPosition = vec4(0.0, 0.0, 0.0, 0.0 );
 var lightAmbient = vec4(0.5, 0.5, 0.5, 1.0 );
@@ -42,6 +44,15 @@ var vertices = [
     vec4(  0.5, -0.5, -0.5, 1.0 )
 ];
 
+var texCoordsArray = [];
+
+var texCoord = [
+    vec2(0, 0),
+    vec2(0, 1),
+    vec2(1, 1),
+    vec2(1, 0)
+];
+
 // RGBA colors
 var vertexColors = [
     vec4( 1.0, 1.0, 1.0, 1.0 ),  // black
@@ -53,6 +64,85 @@ var vertexColors = [
     vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
     vec4( 1.0, 1.0, 1.0, 1.0 )   // cyan
 ];
+
+// Create a checkerboard pattern using floats
+
+
+var image1 = new Array()
+    for (var i =0; i<texSize; i++)  image1[i] = new Array();
+    for (var i =0; i<texSize; i++)
+        for ( var j = 0; j < texSize; j++)
+           image1[i][j] = new Float32Array(4);
+    for (var i =0; i<texSize; i++) for (var j=0; j<texSize; j++) {
+        var c = (((i & 0x8) == 0) ^ ((j & 0x8)  == 0));
+        image1[i][j] = [c, c, c, 1];
+    }
+
+    // Convert floats to ubytes for texture
+
+var image2 = new Uint8Array(4*texSize*texSize);
+
+    for ( var i = 0; i < texSize; i++ )
+        for ( var j = 0; j < texSize; j++ )
+           for(var k =0; k<4; k++)
+                image2[4*texSize*i+4*j+k] = 255*image1[i][j][k];
+
+var image3 = new Uint8Array(4*texSize*texSize);
+
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            var patchx = Math.floor(i/(texSize/numChecks));
+            if(patchx%2) c = 255;
+            else c = 0;
+            image3[4*i*texSize+4*j] = c;
+            image3[4*i*texSize+4*j+1] = c;
+            image3[4*i*texSize+4*j+2] = c;
+            image3[4*i*texSize+4*j+3] = 255;
+        }
+    }
+
+var image4 = new Uint8Array(4*texSize*texSize);
+
+    // Create a checkerboard pattern
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            var patchy = Math.floor(j/(texSize/numChecks));
+            if(patchy%2) c = 255;
+            else c = 0;
+            image4[4*i*texSize+4*j] = c;
+            image4[4*i*texSize+4*j+1] = c;
+            image4[4*i*texSize+4*j+2] = c;
+            image4[4*i*texSize+4*j+3] = 255;
+           }
+    }
+
+var image5 = new Uint8Array(4*texSize*texSize);
+
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            var patchx = Math.floor(i/(texSize/numChecks));
+            var patchy = Math.floor(j/(texSize/numChecks));
+            if(patchx%2 ^ patchy%2) c = 255;
+            else c = 0;
+            //c = 255*(((i & 0x8) == 0) ^ ((j & 0x8)  == 0))
+            image5[4*i*texSize+4*j] = c;
+            image5[4*i*texSize+4*j+1] = c;
+            image5[4*i*texSize+4*j+2] = c;
+            image5[4*i*texSize+4*j+3] = 255;
+        }
+    }
+
+var image6 = new Uint8Array(4*texSize*texSize);
+
+    // Create a checkerboard pattern
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            image6[4*i*texSize+4*j] = 127+127*Math.sin(0.1*i*j);
+            image6[4*i*texSize+4*j+1] = 127+127*Math.sin(0.1*i*j);
+            image6[4*i*texSize+4*j+2] = 127+127*Math.sin(0.1*i*j);
+            image6[4*i*texSize+4*j+3] = 255;
+           }
+    }
 
 var horse = {
     render: renderHorse,
@@ -219,6 +309,21 @@ var vBuffer, cBuffer;
 
 //----------------------------------------------------------------------------
 
+
+function configureTexture(image) {
+    var texture = gl.createTexture();
+    gl.activeTexture( gl.TEXTURE0 );
+    gl.bindTexture( gl.TEXTURE_2D, texture );
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0,
+        gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap( gl.TEXTURE_2D );
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+        gl.NEAREST_MIPMAP_LINEAR );
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+}
+//----------------------------------------------------------------------------
+
 function quad(  a,  b,  c,  d ) {
     var t1 = subtract(vertices[b], vertices[a]);
     var t2 = subtract(vertices[c], vertices[b]);
@@ -227,21 +332,32 @@ function quad(  a,  b,  c,  d ) {
     colors.push(vertexColors[a]);
     points.push(vertices[a]);
     normals.push(normal)
+    texCoordsArray.push(texCoord[0]);
+
     colors.push(vertexColors[a]);
     points.push(vertices[b]);
     normals.push(normal)
+    texCoordsArray.push(texCoord[1]);
+
     colors.push(vertexColors[a]);
     points.push(vertices[c]);
     normals.push(normal)
+    texCoordsArray.push(texCoord[2]);
+
     colors.push(vertexColors[a]);
     points.push(vertices[a]);
     normals.push(normal)
+    texCoordsArray.push(texCoord[0]);
+
     colors.push(vertexColors[a]);
     points.push(vertices[c]);
     normals.push(normal)
+    texCoordsArray.push(texCoord[2]);
+
     colors.push(vertexColors[a]);
     points.push(vertices[d]);
     normals.push(normal)
+    texCoordsArray.push(texCoord[3]);
 }
 
 
@@ -323,6 +439,15 @@ window.onload = function init() {
     gl.vertexAttribPointer( vNormal, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vNormal );
 
+    //colors
+    cBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+
+    var vColor = gl.getAttribLocation( program, "vColor" );
+    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vColor );
+
     // positions
     vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
@@ -332,14 +457,15 @@ window.onload = function init() {
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    //colors
-    cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+    //textures
+    var tBuffer = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW );
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
+    var vTexCoord = gl.getAttribLocation( program, "vTexCoord");
+    gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vTexCoord);
+
 
     // shades
     viewerPos = vec3(0.0, 0.0, -20.0 );
@@ -706,44 +832,53 @@ var renderHorse = function() {
         modelViewMatrix = rotate(theta[0], 0, 1, 0 );
 
     }
-
+    configureTexture(image6);
     base();
 
     //Right Front Leg
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
+    configureTexture(image4);
     upperArm();
 
     //Right Front Ankle
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 ,horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x2+15, -90, 0, 1) );
+    configureTexture(image4);
     lowerArm();
 
     //right back
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
+    configureTexture(image2);
     upperArm();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x+15, -90, 0, 1) );
+    configureTexture(image2);
     lowerArm();
 
     //left front
     modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
+    configureTexture(image4);
     upperArm();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
+
+    configureTexture(image4);
     lowerArm();
 
     //left back
     modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
+    configureTexture(image2);
     upperArm();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
+    configureTexture(image2);
     lowerArm();
 
 /**
@@ -803,38 +938,47 @@ var renderClaw = function() {
 
     clawMachine.upperArm.offsetMat = mult(clawMachine.upperArm.defaultMat, translate(clawData.posx, 0, clawData.posx));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperArm.calculateMat());
+    configureTexture(image2);
     drawComponent(clawMachine.upperArm);
 
     clawMachine.lowerArm.offsetMat = mult(clawMachine.lowerArm.defaultMat, translate(0, clawData.extend, 0));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerArm.calculateMat());
+    configureTexture(image4);
     drawComponent(clawMachine.lowerArm);
 
     clawMachine.clawBase.offsetMat = mult(clawMachine.clawBase.defaultMat, mult(rotate(clawData.baserot, 0, 90, 0), rotate(clawData.baseraise, 0, 0, 90)));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.clawBase.calculateMat());
+    configureTexture(image6);
     drawComponent(clawMachine.clawBase);
 
     clawMachine.upperClaw1.offsetMat = mult(clawMachine.upperClaw1.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw1.calculateMat());
+    configureTexture(image2);
     drawComponent(clawMachine.upperClaw1);
 
     clawMachine.lowerClaw1.offsetMat = mult(clawMachine.lowerClaw1.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw1.calculateMat());
+    configureTexture(image4);
     drawComponent(clawMachine.lowerClaw1);
 
     clawMachine.upperClaw2.offsetMat = mult(clawMachine.upperClaw2.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw2.calculateMat());
+    configureTexture(image6);
     drawComponent(clawMachine.upperClaw2);
 
     clawMachine.lowerClaw2.offsetMat = mult(clawMachine.lowerClaw2.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw2.calculateMat());
+    configureTexture(image2);
     drawComponent(clawMachine.lowerClaw2);
 
     clawMachine.upperClaw3.offsetMat = mult(clawMachine.upperClaw3.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw3.calculateMat());
+    configureTexture(image4);
     drawComponent(clawMachine.upperClaw3);
 
     clawMachine.lowerClaw3.offsetMat = mult(clawMachine.lowerClaw3.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
+    configureTexture(image6);
     drawComponent(clawMachine.lowerClaw3);
 
     /**

@@ -74,6 +74,9 @@ var calcMat = function() {
 	return mat
 }
 
+var WALL_WIDTH  = 1.0;
+var WALL_HEIGHT  = 40.0;
+
 var clawMachine = {}
 
 clawMachine.upperArm = {
@@ -461,10 +464,25 @@ function lightBox() {
 
 // ----------------------------------------------------------------------------------
 
+function walls()
+{
+    var s = scale4(WALL_WIDTH, WALL_HEIGHT, WALL_HEIGHT);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+    g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+// ----------------------------------------------------------------------------------
+
 var renderClaw = function() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
+	var wallviewMatrix = rotate(0,0,1,0);
 	//lightBox();
 
 	if (demo) {
