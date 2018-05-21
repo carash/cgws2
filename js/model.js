@@ -11,6 +11,10 @@ var canvas, gl, program;
 
 var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
 
+var haruka = "./img/haruka.png"
+var rio = "./img/rio.jpg"
+var asuka = "./img/asuka.png"
+
 var points = [];
 var colors = [];
 var normals =[];
@@ -308,20 +312,29 @@ var normalMatrix;
 
 var vBuffer, cBuffer;
 
+
+//----------------------------------------------------------------------------
+
+function requestCORSIfNotSameOrigin(img, url) {
+   if ((new URL(url)).origin !== window.location.origin) {
+     img.crossOrigin = "";
+   }
+ }
+
 //----------------------------------------------------------------------------
 
 
-function configureTexture(image) {
+function configureTexture(imgUrl) {
     var texture = gl.createTexture();
-    gl.activeTexture( gl.TEXTURE0 );
-    gl.bindTexture( gl.TEXTURE_2D, texture );
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0,
-        gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.generateMipmap( gl.TEXTURE_2D );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
-        gl.NEAREST_MIPMAP_LINEAR );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+    var image = new Image();
+    image.src = imgUrl;
+    requestCORSIfNotSameOrigin(image, image.src);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                  new Uint8Array([0, 0, 255, 255]));
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
 }
 //----------------------------------------------------------------------------
 
@@ -407,10 +420,10 @@ window.onload = function init() {
 
     canvas = document.getElementById( "gl-canvas" );
 
-    gl = WebGLUtils.setupWebGL( canvas );
-    if ( !gl ) { alert( "WebGL isn't available" ); }
+   gl = WebGLUtils.setupWebGL( canvas );
+   if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    gl.viewport( 0, 0, canvas.width, canvas.height );
+   gl.viewport( 0, 0, canvas.width, canvas.height );
 
     gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
     gl.enable( gl.DEPTH_TEST );
@@ -619,7 +632,7 @@ var display = function () {
 
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
     flatten(lightPosition) );
-	
+
 	for (var i = 0, length = onLight.length; i < length; i++) {
         if (onLight[i].checked && onLight[i].value == "on") {
             isOn = 1;
@@ -629,9 +642,9 @@ var display = function () {
             break;
         }
     }
-	
+
     gl.uniform1i(gl.getUniformLocation(program, "isOn"), isOn);
-	
+
     for (var i = 0, length = materials.length; i < length; i++) {
         if (materials[i].checked && materials[i].value == "gloss") {
             // do whatever you want with the checked radio
@@ -846,53 +859,53 @@ var renderHorse = function() {
         modelViewMatrix = rotate(theta[0], 0, 1, 0 );
 
     }
-    configureTexture(image6);
+    configureTexture(haruka);
     base();
 
     //Right Front Leg
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
-    configureTexture(image4);
+    configureTexture(rio);
     upperArm();
 
     //Right Front Ankle
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 ,horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x2+15, -90, 0, 1) );
-    configureTexture(image4);
+    configureTexture(rio);
     lowerArm();
 
     //right back
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
-    configureTexture(image2);
+    configureTexture(asuka);
     upperArm();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x+15, -90, 0, 1) );
-    configureTexture(image2);
+    configureTexture(asuka);
     lowerArm();
 
     //left front
     modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
-    configureTexture(image4);
+    configureTexture(rio);
     upperArm();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
 
-    configureTexture(image4);
+    configureTexture(rio);
     lowerArm();
 
     //left back
     modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
-    configureTexture(image2);
+    configureTexture(asuka);
     upperArm();
 
     modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
     modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
-    configureTexture(image2);
+    configureTexture(asuka);
     lowerArm();
 
 
@@ -952,47 +965,47 @@ var renderClaw = function() {
 
     clawMachine.upperArm.offsetMat = mult(clawMachine.upperArm.defaultMat, translate(clawData.posx, 0, clawData.posx));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperArm.calculateMat());
-    configureTexture(image2);
+    configureTexture(haruka);
     drawComponent(clawMachine.upperArm);
 
     clawMachine.lowerArm.offsetMat = mult(clawMachine.lowerArm.defaultMat, translate(0, clawData.extend, 0));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerArm.calculateMat());
-    configureTexture(image4);
+    configureTexture(rio);
     drawComponent(clawMachine.lowerArm);
 
     clawMachine.clawBase.offsetMat = mult(clawMachine.clawBase.defaultMat, mult(rotate(clawData.baserot, 0, 90, 0), rotate(clawData.baseraise, 0, 0, 90)));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.clawBase.calculateMat());
-    configureTexture(image6);
+    configureTexture(asuka);
     drawComponent(clawMachine.clawBase);
 
     clawMachine.upperClaw1.offsetMat = mult(clawMachine.upperClaw1.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw1.calculateMat());
-    configureTexture(image2);
+    configureTexture(haruka);
     drawComponent(clawMachine.upperClaw1);
 
     clawMachine.lowerClaw1.offsetMat = mult(clawMachine.lowerClaw1.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw1.calculateMat());
-    configureTexture(image4);
+    configureTexture(rio);
     drawComponent(clawMachine.lowerClaw1);
 
     clawMachine.upperClaw2.offsetMat = mult(clawMachine.upperClaw2.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw2.calculateMat());
-    configureTexture(image6);
+    configureTexture(asuka);
     drawComponent(clawMachine.upperClaw2);
 
     clawMachine.lowerClaw2.offsetMat = mult(clawMachine.lowerClaw2.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw2.calculateMat());
-    configureTexture(image2);
+    configureTexture(haruka);
     drawComponent(clawMachine.lowerClaw2);
 
     clawMachine.upperClaw3.offsetMat = mult(clawMachine.upperClaw3.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw3.calculateMat());
-    configureTexture(image4);
+    configureTexture(rio);
     drawComponent(clawMachine.upperClaw3);
 
     clawMachine.lowerClaw3.offsetMat = mult(clawMachine.lowerClaw3.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
-    configureTexture(image6);
+    configureTexture(asuka);
     drawComponent(clawMachine.lowerClaw3);
 
     /**
