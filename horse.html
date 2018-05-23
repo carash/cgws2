@@ -39,7 +39,7 @@ uniform bool isOn;
 
 void main() {
 	if(isOn) {	
-		vec3 pos = -(modelViewMatrix * lightPosition).xyz;
+		vec3 pos = -(modelViewMatrix * vPosition).xyz;
         
 		//fixed light postion
 		vec3 light = lightPosition.xyz;
