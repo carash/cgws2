@@ -7,7 +7,7 @@ Dibuat oleh Tjokorde Gde Agung Octavio Putra & Achmad Firdaus
 
 "use strict";
 
-var canvas, gl, program;
+var canvas, gl, program, shadowProgram, fbo;
 
 var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
 
@@ -297,6 +297,7 @@ var WALL_HEIGHT  = 40.0;
 // Shader transformation matrices
 
 var modelViewMatrix, projectionMatrix, wallviewMatrix;
+var viewProjMatrixFromLight, mvpMatrixFromLight, shadowMap;
 
 // Array of rotation angles (in degrees) for each rotation axis
 
@@ -432,7 +433,7 @@ window.onload = function init() {
     gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
     gl.enable( gl.DEPTH_TEST );	
 	
-	var shadowProgram = initShaders( gl, "shadow-vertex-shader", "shadow-fragment-shader" );
+	shadowProgram = initShaders( gl, "shadow-vertex-shader", "shadow-fragment-shader" );
 	shadowProgram.a_Position = gl.getAttribLocation(shadowProgram, 'a_Position');
 	shadowProgram.u_MvpMatrix = gl.getUniformLocation(shadowProgram, 'u_MvpMatrix');
 	if (shadowProgram.a_Position < 0 || !shadowProgram.u_MvpMatrix) {
@@ -440,11 +441,23 @@ window.onload = function init() {
 		return;
 	}
 	
-	var viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
-	viewProjMatrixFromLight *= perspective(70.0, 1.0, 1.0, 100.0);
-	viewProjMatrixFromLight *= lookAt(
-		new vec3(lightPosition[0], lightPosition[1], lightPosition[2]),
-		new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0));
+	  // Initialize framebuffer object (FBO)  
+	fbo = initFramebufferObject(gl);
+	if (!fbo) {
+		console.log('Failed to initialize frame buffer object');
+		return;
+	}
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
+	
+	
+	viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
+	viewProjMatrixFromLight = perspective(70.0, 1.0, 1.0, 100.0);
+	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+	
+	var aPositionShadow = gl.getAttribLocation( shadowProgram, "a_Position" );
+    gl.vertexAttribPointer( aPositionShadow, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( aPositionShadow );
 	
     //
     //  Load shaders and initialize attribute buffers
@@ -625,8 +638,13 @@ window.onload = function init() {
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
-    projectionMatrix = ortho(-15, 15, -15, 15, -15, 15);
+    projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
+	projectionMatrix = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+	
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
+	
+	mvpMatrixFromLight = gl.getUniformLocation(program, 'u_MvpMatrixFromLight');
+	shadowMap = gl.getUniformLocation(program, 'u_ShadowMap');
 
     display();
 }
@@ -653,6 +671,9 @@ var display = function () {
 
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
     flatten(lightPosition) );
+	
+	viewProjMatrixFromLight = perspective(70.0, 1.0, 1.0, 100.0);
+	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
 	for (var i = 0, length = onLight.length; i < length; i++) {
         if (onLight[i].checked && onLight[i].value == "on") {
@@ -730,7 +751,9 @@ var display = function () {
             break;
         }
     }
-
+	
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	
     for (var i = 0, length = radios.length; i < length; i++) {
         if (radios[i].checked && radios[i].value == "horse") {
             // do whatever you want with the checked radio
@@ -753,12 +776,30 @@ var display = function () {
 //------------------------------------------------------------------------------
 
 var g_normalMatrix = new mat4();  // Coordinate transformation matrix for normals
+var g_mvpMatrixFromLight = new mat4();  // MVP from light
 
 function drawComponent(comp) {
     var s = scale4(comp.width, comp.height, comp.width);
     var instanceMatrix = mult(translate(0.0, 0.5 * comp.height, 0.0), s);
 
     var t = mult(modelViewMatrix, instanceMatrix);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
@@ -772,6 +813,23 @@ function base() {
     var s = scale4(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
@@ -786,7 +844,24 @@ function upperArm() {
     var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
     var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
     var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
+    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
@@ -801,6 +876,23 @@ function lowerArm()
     var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
     var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
@@ -814,8 +906,25 @@ function lowerArm()
 function walls()
 {
     var s = scale4(WALL_WIDTH, WALL_HEIGHT, WALL_HEIGHT);
-    var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * WALL_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
@@ -828,8 +937,25 @@ function walls()
 
 function lightBox() {
     var s = scale4(1.0, 1.0, 1.0);
-    var instanceMatrix = mult( translate( 0.0, 0.0, 0.0 ), s);
+    var instanceMatrix = mult( translate( lightPosition[0], lightPosition[1], lightPosition[2]), s);
     var t = mult(modelViewMatrix, instanceMatrix);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
@@ -842,7 +968,8 @@ function lightBox() {
 var renderHorse = function() {
     gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
+    modelViewMatrix = translate(0, 0, 0);
+    configureTexture(asuka);
     lightBox();
 
     var threshold = 15;
@@ -929,9 +1056,9 @@ var renderHorse = function() {
     configureTexture(asuka);
     lowerArm();
 
-
-    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
+    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height, -10));
     modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(rio);
     walls();
 
 }
@@ -941,7 +1068,7 @@ var renderHorse = function() {
 var renderClaw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
+    modelViewMatrix = translate(0,0,0);
     var wallviewMatrix = rotate(0,0,1,0);
     lightBox();
 
@@ -1029,8 +1156,70 @@ var renderClaw = function() {
     configureTexture(asuka);
     drawComponent(clawMachine.lowerClaw3);
 
-    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
+
+    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height, -10));
     modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(rio);
     walls();
 
 };
+
+function initFramebufferObject(gl) {
+  var framebuffer, texture, depthBuffer;
+
+  // Define the error handling function
+  var error = function() {
+    if (framebuffer) gl.deleteFramebuffer(framebuffer);
+    if (texture) gl.deleteTexture(texture);
+    if (depthBuffer) gl.deleteRenderbuffer(depthBuffer);
+    return null;
+  }
+
+  // Create a framebuffer object (FBO)
+  framebuffer = gl.createFramebuffer();
+  if (!framebuffer) {
+    console.log('Failed to create frame buffer object');
+    return error();
+  }
+
+  // Create a texture object and set its size and parameters
+  texture = gl.createTexture(); // Create a texture object
+  if (!texture) {
+    console.log('Failed to create texture object');
+    return error();
+  }
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 512, 512, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+  // Create a renderbuffer object and Set its size and parameters
+  depthBuffer = gl.createRenderbuffer(); // Create a renderbuffer object
+  if (!depthBuffer) {
+    console.log('Failed to create renderbuffer object');
+    return error();
+  }
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 512, 512);
+
+  // Attach the texture and the renderbuffer object to the FBO
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+
+  // Check if FBO is configured correctly
+  var e = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+  if (gl.FRAMEBUFFER_COMPLETE !== e) {
+    console.log('Frame buffer object is incomplete: ' + e.toString());
+    return error();
+  }
+
+  framebuffer.texture = texture; // keep the required object
+
+  // Unbind the buffer object
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+  return framebuffer;
+}

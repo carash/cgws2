@@ -13,12 +13,16 @@ void main() {
 
 
 <script id="shadow-fragment-shader" type="x-shader/x-fragment">
-  #ifdef GL_ES
-  precision mediump float;
-  #endif
-  void main() {
-    gl_FragColor = vec4(gl_FragCoord.z, 0.0, 0.0, 0.0); // Write the z-value in R
-  }
+#ifdef GL_ES
+precision mediump float;
+#endif
+void main() {
+  const vec4 bitShift = vec4(1.0, 256.0, 256.0 * 256.0, 256.0 * 256.0 * 256.0);
+  const vec4 bitMask = vec4(1.0/256.0, 1.0/256.0, 1.0/256.0, 0.0);
+  vec4 rgbaDepth = fract(gl_FragCoord.z * bitShift); // Calculate the value stored into each byte
+  rgbaDepth -= rgbaDepth.gbaa * bitMask; // Cut off the value which do not fit in 8 bits
+  gl_FragColor = rgbaDepth;
+}
 </script>
 
 <script id="vertex-shader" type="x-shader/x-vertex">
@@ -36,6 +40,9 @@ uniform vec4 ambientProduct, diffuseProduct, specularProduct;
 uniform vec4 lightPosition;
 uniform float shininess;
 uniform bool isOn;
+
+uniform mat4 u_MvpMatrixFromLight;
+varying vec4 fPositionFromLight;
 
 void main() {
 	if(isOn) {	
@@ -68,6 +75,8 @@ void main() {
 		fColor = ambient + diffuse + specular;
 		fColor.a = 1.0;
 		fTexCoord = vTexCoord;
+		
+		fPositionFromLight = u_MvpMatrixFromLight * vPosition;
 
 		//vec3 lightDirection = normalize(vec3(0.0, 0.0, 1.0));
 		//vec3 normal = normalize((normalMatrix * vNormal).xyz);
@@ -90,11 +99,26 @@ precision mediump float;
 varying  vec4 fColor;
 varying  vec2 fTexCoord;
 
+uniform sampler2D u_ShadowMap;
 uniform sampler2D texture;
+
+varying vec4 fPositionFromLight;
+
+float unpackDepth(const in vec4 rgbaDepth) {
+  const vec4 bitShift = vec4(1.0, 1.0/256.0, 1.0/(256.0*256.0), 1.0/(256.0*256.0*256.0));
+  float depth = dot(rgbaDepth, bitShift); // Use dot() since the calculations is same
+  return depth;
+}
 
 void main()
 {
-    gl_FragColor = fColor * texture2D( texture, fTexCoord );
+	vec3 shadowCoord = (fPositionFromLight.xyz/fPositionFromLight.w)/2.0 + 0.5;
+	vec4 rgbaDepth = texture2D(u_ShadowMap, shadowCoord.xy);
+	float depth = unpackDepth(rgbaDepth); // Recalculate the z value from the rgba
+	float visibility = (shadowCoord.z > depth + 0.0015) ? 0.7 : 1.0;
+	gl_FragColor = vec4(fColor.rgb * visibility, fColor.a) * texture2D( texture, fTexCoord );
+	//gl_FragColor = vec4(fColor.rgb * visibility, fColor.a);
+    //gl_FragColor = fColor * texture2D( texture, fTexCoord );
 }
 </script>
 
