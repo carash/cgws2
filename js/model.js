@@ -26,8 +26,8 @@ var normals =[];
 var numChecks = 32;
 var texSize = 64;
 
-var lightPosition = vec4(0.0, 0.0, 5.0, 0.0 );
-var lightAmbient = vec4(0.5, 0.5, 0.5, 1.0 );
+var lightPosition = vec4(0.0, 0.0, 12.0, 0.0 );
+var lightAmbient = vec4(1.0, 1.0, 1.0, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 
@@ -42,6 +42,7 @@ var viewerPos;
 
 var isForward;
 var isOn = 1;
+var isLightMove = true;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -439,6 +440,12 @@ window.onload = function init() {
 		return;
 	}
 	
+	var viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
+	viewProjMatrixFromLight *= perspective(70.0, 1.0, 1.0, 100.0);
+	viewProjMatrixFromLight *= lookAt(
+		new vec3(lightPosition[0], lightPosition[1], lightPosition[2]),
+		new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0));
+	
     //
     //  Load shaders and initialize attribute buffers
     //
@@ -528,6 +535,10 @@ window.onload = function init() {
         document.getElementById("stop").disabled = false;
         document.getElementById("demo").disabled = true;
     }
+	
+	document.getElementById("stop-l").onclick = function(event) {
+		isLightMove = !isLightMove;
+	}
 
     document.onkeydown = function(event) {
         if (demo) return;
@@ -614,7 +625,7 @@ window.onload = function init() {
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
-    projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
+    projectionMatrix = ortho(-15, 15, -15, 15, -15, 15);
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
 
     display();
@@ -626,16 +637,18 @@ var display = function () {
     var materials = document.getElementsByName('material');
     var onLight = document.getElementsByName('onLight');
 
-	if(isForward) {
-		lightPosition[0] += 0.1;
-		lightPosition[1] += 0.1;
-	} else {
-		lightPosition[0] -= 0.1;
-		lightPosition[1] -= 0.1;
-	}
+	if(isLightMove) {
+		if(isForward) {
+			lightPosition[0] += 0.1;
+			lightPosition[1] += 0.1;
+		} else {
+			lightPosition[0] -= 0.1;
+			lightPosition[1] -= 0.1;
+		}
 
-	if(lightPosition[1] > 10 || lightPosition[1] < -10) {
-		isForward = !isForward;
+		if(lightPosition[1] > 15 || lightPosition[1] < -15) {
+			isForward = !isForward;
+		}
 	}
 
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
@@ -917,9 +930,9 @@ var renderHorse = function() {
     lowerArm();
 
 
-    // modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
-    // modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
-    // walls();
+    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    walls();
 
 }
 
@@ -1016,10 +1029,8 @@ var renderClaw = function() {
     configureTexture(asuka);
     drawComponent(clawMachine.lowerClaw3);
 
-    /**
     modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height/4 , -WALL_WIDTH*8));
     modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
     walls();
-    */
 
 };
