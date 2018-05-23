@@ -27,7 +27,7 @@ var numChecks = 32;
 var texSize = 64;
 
 var lightPosition = vec4(0.0, 0.0, 12.0, 0.0 );
-var lightAmbient = vec4(1.0, 1.0, 1.0, 1.0 );
+var lightAmbient = vec4(0.3, 0.3, 0.3, 1.0 );
 var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
 var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
 
