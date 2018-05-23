@@ -11,9 +11,14 @@ var canvas, gl, program;
 
 var NumVertices = 36; //(6 faces)(2 triangles/face)(3 vertices/triangle)
 
-var haruka = "./img/haruka.png"
-var rio = "./img/rio.jpg"
-var asuka = "./img/asuka.png"
+var haruka = new Image();
+haruka.src = "./img/haruka.png"
+
+var rio = new Image();
+rio.src = "./img/rio.jpg"
+
+var asuka = new Image();
+asuka.src = "./img/asuka.png"
 
 var points = [];
 var colors = [];
@@ -323,18 +328,16 @@ function requestCORSIfNotSameOrigin(img, url) {
 
 //----------------------------------------------------------------------------
 
-
-function configureTexture(imgUrl) {
-    var texture = gl.createTexture();
+var texture;
+function configureTexture(image) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    var image = new Image();
-    image.src = imgUrl;
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     requestCORSIfNotSameOrigin(image, image.src);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-                  new Uint8Array([0, 0, 255, 255]));
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                      gl.NEAREST_MIPMAP_LINEAR );
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
 }
 //----------------------------------------------------------------------------
 
@@ -426,8 +429,16 @@ window.onload = function init() {
    gl.viewport( 0, 0, canvas.width, canvas.height );
 
     gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
-    gl.enable( gl.DEPTH_TEST );
-
+    gl.enable( gl.DEPTH_TEST );	
+	
+	var shadowProgram = initShaders( gl, "shadow-vertex-shader", "shadow-fragment-shader" );
+	shadowProgram.a_Position = gl.getAttribLocation(shadowProgram, 'a_Position');
+	shadowProgram.u_MvpMatrix = gl.getUniformLocation(shadowProgram, 'u_MvpMatrix');
+	if (shadowProgram.a_Position < 0 || !shadowProgram.u_MvpMatrix) {
+		console.log('Failed to get the storage location of attribute or uniform variable from shadowProgram'); 
+		return;
+	}
+	
     //
     //  Load shaders and initialize attribute buffers
     //
@@ -436,11 +447,6 @@ window.onload = function init() {
     gl.useProgram( program );
 
     colorCube();
-
-    // Load shaders and use the resulting shader program
-
-    program = initShaders( gl, "vertex-shader", "fragment-shader" );
-    gl.useProgram( program );
 
     // Create and initialize  buffer objects
 
@@ -499,6 +505,8 @@ window.onload = function init() {
 
     gl.uniform1f(gl.getUniformLocation(program,
         "shininess"),materialShininess);
+		
+    texture = gl.createTexture();
 
     document.getElementById("stop").onclick = function(event) {
         demo = false;
