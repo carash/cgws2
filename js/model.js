@@ -455,7 +455,7 @@ window.onload = function init() {
 	
 	
 	viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
-	viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
+	viewProjMatrixFromLight = perspective(5.0, 1.0, 1.0, 100.0);
 	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 	
     //
@@ -671,7 +671,7 @@ var display = function () {
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
     flatten(lightPosition) );
 	
-	viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
+	viewProjMatrixFromLight = perspective(5.0, 1.0, 1.0, 100.0);
 	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
 	for (var i = 0, length = onLight.length; i < length; i++) {
