@@ -792,6 +792,7 @@ function drawComponent(comp) {
 	if(isOn) {
 		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
 		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 		
 		configureTexture(black);
 		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	
@@ -815,6 +816,7 @@ function base() {
 	if(isOn) {
 		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
 		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 		
 		configureTexture(black);
 		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	
@@ -839,6 +841,7 @@ function upperArm() {
 	if(isOn) {
 		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
 		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 		
 		configureTexture(black);
 		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	
@@ -864,6 +867,7 @@ function lowerArm()
 	if(isOn) {
 		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
 		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 		
 		configureTexture(black);
 		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	

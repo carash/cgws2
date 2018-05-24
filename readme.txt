@@ -9,3 +9,8 @@ Panduan Penggunaan:
 - Gunakan slider untuk mengatur sudut kaki
 - Gunakan radio button untuk mengganti model, material, dan lampu
 
+NOTE:
+Shadow menggunakan cara "curang" dimana dibuat model yang sama dengan MVP matriks dari lampu,
+kemudian di translate secara manual.
+Percobaan menggunakan shadow map entah kenapa tidak bisa berhasil menghasilkan tekstur shadow map yang
+diinginkan (hasil percobaan ada di horse-backup.html)
