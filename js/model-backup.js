@@ -20,9 +20,6 @@ rio.src = "./img/rio.jpg"
 var asuka = new Image();
 asuka.src = "./img/asuka.png"
 
-var black = new Image();
-black.src = "./img/black.jpg"
-
 var points = [];
 var colors = [];
 var normals =[];
@@ -783,20 +780,27 @@ function drawComponent(comp) {
 
     var t = mult(modelViewMatrix, instanceMatrix);
 	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(shadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-	
-	if(isOn) {
-		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-		
-		configureTexture(black);
-		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	
-		gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -806,20 +810,27 @@ function base() {
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(shadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	if(isOn) {
-		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-		
-		configureTexture(black);
-		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	
-		gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -830,20 +841,27 @@ function upperArm() {
     var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
     var t = mult(modelViewMatrix, instanceMatrix);
 	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(shadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	if(isOn) {
-		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-		
-		configureTexture(black);
-		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	
-		gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	}
 }
 
 //----------------------------------------------------------------------------
@@ -855,20 +873,27 @@ function lowerArm()
     var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(shadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
+	
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	if(isOn) {
-		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-		
-		configureTexture(black);
-		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));	
-		gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	}
 }
 
 //----------------------------------------------------------------------------
@@ -879,6 +904,22 @@ function walls()
     var s = scale4(WALL_WIDTH, WALL_HEIGHT, WALL_HEIGHT);
     var instanceMatrix = mult( translate( 0.0, 0.5 * WALL_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(shadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
@@ -894,6 +935,22 @@ function lightBox() {
     var s = scale4(1.0, 1.0, 1.0);
     var instanceMatrix = mult( translate( lightPosition[0], lightPosition[1], lightPosition[2]), s);
     var t = mult(modelViewMatrix, instanceMatrix);
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+    gl.viewport(0, 0, 512, 512); // Set view port for FBO
+	
+	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+	gl.useProgram(shadowProgram);
+	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+	
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.useProgram(program);
+	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.uniform1i(shadowMap, fbo.texture);
+    gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
     g_normalMatrix = inverse(t);
@@ -946,6 +1003,7 @@ var renderHorse = function() {
         modelViewMatrix = rotate(theta[0], 0, 1, 0 );
 
     }
+    configureTexture(haruka);
     base();
 
     //Right Front Leg
