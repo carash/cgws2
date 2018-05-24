@@ -452,12 +452,8 @@ window.onload = function init() {
 	
 	
 	viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
-	viewProjMatrixFromLight = perspective(70.0, 1.0, 1.0, 100.0);
+	viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
 	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
-	
-	var aPositionShadow = gl.getAttribLocation( shadowProgram, "a_Position" );
-    gl.vertexAttribPointer( aPositionShadow, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( aPositionShadow );
 	
     //
     //  Load shaders and initialize attribute buffers
@@ -639,7 +635,7 @@ window.onload = function init() {
     normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
     projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
-	projectionMatrix = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+	projectionMatrix = mult(projectionMatrix, lookAt(new vec3(0, 0, 20), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 	
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
 	
@@ -672,7 +668,7 @@ var display = function () {
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
     flatten(lightPosition) );
 	
-	viewProjMatrixFromLight = perspective(70.0, 1.0, 1.0, 100.0);
+	viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
 	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
 	for (var i = 0, length = onLight.length; i < length; i++) {
@@ -797,7 +793,7 @@ function drawComponent(comp) {
 	gl.useProgram(program);
 	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
 	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+	gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
@@ -827,7 +823,7 @@ function base() {
 	gl.useProgram(program);
 	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
 	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+	gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
@@ -858,7 +854,7 @@ function upperArm() {
 	gl.useProgram(program);
 	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
 	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+	gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
@@ -890,7 +886,7 @@ function lowerArm()
 	gl.useProgram(program);
 	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
 	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+	gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
@@ -922,7 +918,7 @@ function walls()
 	gl.useProgram(program);
 	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
 	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+	gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
@@ -953,7 +949,7 @@ function lightBox() {
 	gl.useProgram(program);
 	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
 	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(program.u_ShadowMap, fbo.texture);
+	gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
 	
     gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
