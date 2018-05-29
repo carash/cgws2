@@ -291,11 +291,11 @@ clawMachine.lowerClaw3 = {
 // Parameters controlling the size of the Robot's arm
 
 var BASE_HEIGHT      = 3.0;
-var BASE_WIDTH       = 10.0;
-var LOWER_ARM_HEIGHT = 7.0;
-var LOWER_ARM_WIDTH  = 0.8;
+var BASE_WIDTH       = 8.0;
+var LOWER_ARM_HEIGHT = 4.0;
+var LOWER_ARM_WIDTH  = 0.5;
 var UPPER_ARM_HEIGHT = 3.0;
-var UPPER_ARM_WIDTH  = 1;
+var UPPER_ARM_WIDTH  = 0.8;
 var WALL_WIDTH  = 1.0;
 var WALL_HEIGHT  = 40.0;
 
@@ -755,22 +755,7 @@ var display = function () {
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    for (var i = 0, length = radios.length; i < length; i++) {
-        if (radios[i].checked && radios[i].value == "horse") {
-            // do whatever you want with the checked radio
-            document.getElementById("horseParam").style.display = "block";
-            document.getElementById("clawParam").style.display = "none";
-            renderHorse();
-
-            // only one radio can be logically checked, don't check the rest
-            break;
-        } else if (radios[i].checked && radios[i].value == "claw") {
-            document.getElementById("horseParam").style.display = "none";
-            document.getElementById("clawParam").style.display = "block";
-            renderClaw();
-            break;
-        }
-    }
+    renderHorse();
 }
 
 
@@ -1076,16 +1061,8 @@ var renderHorse = function() {
     configureTexture(stone);
     walls();
 
-}
-
-//----------------------------------------------------------------------------
-
-var renderClaw = function() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
     modelViewMatrix = translate(0,0,0);
     var wallviewMatrix = rotate(0,0,1,0);
-    lightBox();
 
     if (demo) {
         // moving posx
