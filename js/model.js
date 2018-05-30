@@ -1251,7 +1251,6 @@ var renderModel = function() {
         clawData.posx += 0.05 * vx;
         */
         clawData.posx = 6
-        console.log(clawData.posx);
 
         // moving extend
         if (extend == 0) extend = 1;
