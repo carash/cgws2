@@ -148,6 +148,7 @@
             </div>
             <div class="row">
                 <div class="col-lg">
+                    <h1>Claw Control</h1>
                     <div id="clawParam">
                         <span>
                             <pre>hold <strong>&lt;enter&gt;</strong> to extend arm, release to retract</pre>
@@ -167,6 +168,7 @@
                     </div>
                 </div>
                 <div class="col-lg">
+                    <h1>Horse Control</h1>
                     <div id="horseParam">
                         <div>
                             body angle -180
@@ -188,6 +190,7 @@
                     </div>
                 </div>
                 <div class="col-lg">
+                    <h1>Block Man Control</h1>
                     <div id="blockParam">
                         <div>
                             lower arm angle -15
@@ -222,6 +225,20 @@
                         <h1>Lights</h1>
                         <input type="radio" name="onLight" value="on">Light On<br>
                         <input type="radio" name="onLight" value="off" checked="checked">Light Off<br>
+                    </form>
+                </div>
+                <div class="col-lg row">
+                    <form action="" autocomplete="off">
+                        <h1>Cameras</h1>
+                        <input type="radio" name="ctrl-cam" value="free" checked="checked">Free camera<br>
+                        <input type="radio" name="ctrl-cam" value="crane">Hand Crane Camera<br>
+                    </form>
+                </div>
+                <div class="col-lg row">
+                    <form action="" autocomplete="off">
+                        <h1>Free Camera Control</h1>
+                        <pre id="ctrl-cam-div1">Use <strong>&lt;i,j,k,m&gt;</strong> to control cam</pre>
+                        <pre id="ctrl-cam-div2">Use Claw control to control cam</pre>
                     </form>
                 </div>
             </div>
