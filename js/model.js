@@ -367,6 +367,7 @@ function configureTexture(image) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 }
+
 //----------------------------------------------------------------------------
 
 function quad(a, b, c, d) {
@@ -465,8 +466,7 @@ window.onload = function init() {
         console.log('This WebGL program requires the use of the ' +
             'WEBGL_depth_texture extension. This extension is not supported ' +
             'by your browser, so this WEBGL program is terminating.');
-    } else {
-        console.log('FUCK YEAH');
+        return;
     }
 
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -1103,7 +1103,7 @@ var renderModel = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = translate(0, 0, -1);
-    configureTexture(wood);
+    configureTexture(light_icon);
     lightBox();
 
     var threshold = 15;
