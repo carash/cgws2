@@ -312,6 +312,7 @@ var UpperArm = 2;
 
 
 var theta= [ 0, 0, 0];
+var gamma = [0,0,0];
 var anim = 0;
 var animSign=1;
 var stop = 0;
@@ -636,6 +637,13 @@ window.onload = function init() {
         theta[2] =  event.target.value;
     };
 
+    document.getElementById("man-slider2").onchange = function(event) {
+        gamma[1] = event.target.value;
+    };
+    document.getElementById("man-slider3").onchange = function(event) {
+        gamma[2] =  event.target.value;
+    };
+
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
@@ -841,7 +849,7 @@ function base() {
 
 //BLOCK-------------------------------------------------------------------------
 function block() {
-    var s = scale4(BASE_HEIGHT, BASE_HEIGHT, BASE_HEIGHT);
+    var s = scale4(BASE_HEIGHT/1.5, BASE_HEIGHT/1.5, BASE_HEIGHT/1.5);
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
@@ -881,6 +889,82 @@ function block() {
 
 function upperArm() {
     var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
+    var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+    g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    for (var i = 0, length = wireframe.length; i < length; i++) {
+    if (wireframe[i].checked && wireframe[i].value == "on") {
+          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+      }
+    if (wireframe[i].checked && wireframe[i].value == "off") {
+          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+      }
+}
+
+	if(isOn) {
+		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+
+		configureTexture(black);
+		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));
+		for (var i = 0, length = wireframe.length; i < length; i++) {
+    if (wireframe[i].checked && wireframe[i].value == "on") {
+          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+      }
+    if (wireframe[i].checked && wireframe[i].value == "off") {
+          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+      }
+}
+	}
+}
+
+//------------------------------------------------------------------------------
+
+function blockmanArm() {
+    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT*2, UPPER_ARM_WIDTH);
+    var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+    g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    for (var i = 0, length = wireframe.length; i < length; i++) {
+    if (wireframe[i].checked && wireframe[i].value == "on") {
+          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+      }
+    if (wireframe[i].checked && wireframe[i].value == "off") {
+          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+      }
+}
+
+	if(isOn) {
+		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+
+		configureTexture(black);
+		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));
+		for (var i = 0, length = wireframe.length; i < length; i++) {
+    if (wireframe[i].checked && wireframe[i].value == "on") {
+          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+      }
+    if (wireframe[i].checked && wireframe[i].value == "off") {
+          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+      }
+}
+	}
+}
+
+//------------------------------------------------------------------------------
+
+function blockmanBody() {
+    var s = scale4(BASE_HEIGHT/1.5, BASE_HEIGHT*2.5, BASE_HEIGHT);
     var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
@@ -1034,12 +1118,6 @@ var renderModel = function() {
     base();
 
     //Right Front Leg
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, horse.base.height*1.5, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
-    configureTexture(stone);
-    block();
-
-    //Right Front Leg
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
     configureTexture(stone);
@@ -1092,6 +1170,74 @@ var renderModel = function() {
 
     modelViewMatrix = translate(0,0,0);
     var wallviewMatrix = rotate(0,0,1,0);
+
+
+    //Blockman -----------------------------------------------------------------
+    var threshold = 15;
+
+    if (stop == 0) {
+        anim=anim+animSign;
+        if (anim>threshold){
+            animSign=-1;
+        }else if (anim<-threshold){
+            animSign=1;
+        }
+        var wiggle = anim ;
+
+
+        var baseViewMatrix= rotate(gamma[0], 0, 1, 0 );
+        var wallviewMatrix = rotate(0,0,1,0);
+        var x = Number(gamma[1]) + wiggle;
+        var x2 = Number(gamma[1]) + wiggle;
+        modelViewMatrix = rotate(gamma[0], 0, 1, 0 );
+
+    } else {
+        anim=anim+animSign;
+        if (anim>threshold){
+            animSign=0;
+        }else if (anim<-threshold){
+            animSign=0;
+        }
+        var wiggle = anim ;
+
+
+        var baseViewMatrix= rotate(gamma[0], 0, 1, 0 );
+        var wallviewMatrix = rotate(0,0,1,0);
+        var x = Number(gamma[1]) + wiggle;
+        var x2 = Number(gamma[1]) + wiggle;
+        modelViewMatrix = rotate(gamma[0], 0, 1, 0 );
+
+    }
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, horse.base.height*1.5, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(wood);
+    block();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, -horse.base.height, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(wood);
+    blockmanBody();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+0.5, horse.base.height-3.5, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(stone);
+    blockmanArm();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+4.5, horse.base.height-3.5, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(stone);
+    blockmanArm();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+2, horse.base.height-10, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(wood);
+    blockmanArm();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+3.5, horse.base.height-10, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(wood);
+    blockmanArm();
 
     //Robotic Arm---------------------------------------------------------------
 
@@ -1183,12 +1329,6 @@ var renderModel = function() {
     modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
     configureTexture(wood);
     drawComponent(clawMachine.lowerClaw3);
-
-
-    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height, -10));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
-    configureTexture(stone);
-    walls();
 
 };
 

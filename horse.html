@@ -149,6 +149,25 @@ void main()
         </div>
         <div class="row">
             <div class="col-lg">
+                <div id="clawParam">
+                    <span>
+                        <pre>hold <strong>&lt;Enter&gt;</strong> to extend arm, release to retract</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;q&gt;</strong> to close claw, release to release</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;left&gt;</strong>/<strong>&lt;right&gt;</strong> to move left/right</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;a&gt;</strong>/<strong>&lt;d&gt;</strong> to rotate CW/CCW</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg">
                 <div id="horseParam">
                     <div>
                         body angle -180 <input id="slider1" type="range"
@@ -173,22 +192,20 @@ void main()
                 </div>
             </div>
             <div class="col-lg">
-                <div id="clawParam">
-                    <span>
-                        <pre>hold <strong>&lt;Enter&gt;</strong> to extend arm, release to retract</pre>
-                    </span>
-                    <span>
-                        <pre>hold <strong>&lt;q&gt;</strong> to close claw, release to release</pre>
-                    </span>
-                    <span>
-                        <pre>hold <strong>&lt;left&gt;</strong>/<strong>&lt;right&gt;</strong> to move left/right</pre>
-                    </span>
-                    <span>
-                        <pre>hold <strong>&lt;a&gt;</strong>/<strong>&lt;d&gt;</strong> to rotate CW/CCW</pre>
-                    </span>
-                    <span>
-                        <pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
-                    </span>
+                <div id="blockParam">
+                    <div>
+                        lower arm angle -15 <input id="man-slider2" type="range"
+                        min="-15" max="15" step="1" value="0"
+                        />
+                        15
+                    </div><br/>
+
+                    <div>
+                        upper arm angle -15 <input id="man-slider3" type="range"
+                        min="-15" max="15" step="1" value="0"
+                        />
+                        15
+                    </div><br/>
                 </div>
             </div>
         </div>
