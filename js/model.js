@@ -23,6 +23,12 @@ wood.src = "./img/wood.png"
 var black = new Image();
 black.src = "./img/black.jpg"
 
+var brick = new Image();
+brick.src = "./img/brick_base.png"
+
+var light_icon = new Image();
+light_icon.src = "./img/light_icon.png"
+
 var points = [];
 var colors = [];
 var normals = [];
@@ -189,21 +195,26 @@ var wall = {
 };
 
 var calcMat = function() {
-    var mat = translate(0, 0, 0);
-    var par = [this.offsetMat];
-    var curr = this.parent;
+    // var mat = translate(0, 0, 0);
+    // var par = [this.offsetMat];
+    // var curr = this.parent;
+    //
+    // while (curr) {
+    //     par.push(curr.offsetMat);
+    //     curr = curr.parent;
+    // }
+    //
+    // par.reverse()
+    // par.forEach(function(m) {
+    //     mat = mult(mat, m);
+    // });
+    //
+    // return mat
 
-    while (curr) {
-        par.push(curr.offsetMat);
-        curr = curr.parent;
+    if (this.parent == null) {
+        return this.offsetMat;
     }
-
-    par.reverse()
-    par.forEach(function(m) {
-        mat = mult(mat, m);
-    });
-
-    return mat
+    return mult(this.parent.resultMat, this.offsetMat)
 }
 
 var clawMachine = {}
@@ -211,6 +222,7 @@ var clawMachine = {}
 clawMachine.upperArm = {
     parent: null,
     defaultMat: mult(translate(0.0, 5.0, 0.0), rotate(180, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 5.0, 0.0), rotate(180, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 5.0, 0.0), rotate(180, 0, 0, 90)),
     width: 1.0,
     height: 3.0,
@@ -220,6 +232,7 @@ clawMachine.upperArm = {
 clawMachine.lowerArm = {
     parent: clawMachine.upperArm,
     defaultMat: translate(0.0, 1.5, 0.0),
+    resultMat: translate(0.0, 1.5, 0.0),
     offsetMat: translate(0.0, 1.5, 0.0),
     width: 0.7,
     height: 5.5,
@@ -229,6 +242,7 @@ clawMachine.lowerArm = {
 clawMachine.clawBase = {
     parent: clawMachine.lowerArm,
     defaultMat: translate(0.0, 5.5, 0.0),
+    resultMat: translate(0.0, 5.5, 0.0),
     offsetMat: translate(0.0, 5.5, 0.0),
     width: 2.3,
     height: 1.0,
@@ -238,6 +252,7 @@ clawMachine.clawBase = {
 clawMachine.upperClaw1 = {
     parent: clawMachine.clawBase,
     defaultMat: mult(translate(0.6, 1.0, 0.0), rotate(-45, 0, 0, 90)),
+    resultMat: mult(translate(0.6, 1.0, 0.0), rotate(-45, 0, 0, 90)),
     offsetMat: mult(translate(0.6, 1.0, 0.0), rotate(-45, 0, 0, 90)),
     width: 0.4,
     height: 1.5,
@@ -247,6 +262,7 @@ clawMachine.upperClaw1 = {
 clawMachine.lowerClaw1 = {
     parent: clawMachine.upperClaw1,
     defaultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     width: 0.3,
     height: 1.5,
@@ -256,6 +272,7 @@ clawMachine.lowerClaw1 = {
 clawMachine.upperClaw2 = {
     parent: clawMachine.clawBase,
     defaultMat: mult(mult(translate(-0.3, 1.0, 0.5), rotate(-120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
+    resultMat: mult(mult(translate(-0.3, 1.0, 0.5), rotate(-120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     offsetMat: mult(mult(translate(-0.3, 1.0, 0.5), rotate(-120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     width: 0.4,
     height: 1.5,
@@ -265,6 +282,7 @@ clawMachine.upperClaw2 = {
 clawMachine.lowerClaw2 = {
     parent: clawMachine.upperClaw2,
     defaultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     width: 0.3,
     height: 1.5,
@@ -274,6 +292,7 @@ clawMachine.lowerClaw2 = {
 clawMachine.upperClaw3 = {
     parent: clawMachine.clawBase,
     defaultMat: mult(mult(translate(-0.3, 1.0, -0.5), rotate(120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
+    resultMat: mult(mult(translate(-0.3, 1.0, -0.5), rotate(120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     offsetMat: mult(mult(translate(-0.3, 1.0, -0.5), rotate(120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     width: 0.4,
     height: 1.5,
@@ -283,6 +302,7 @@ clawMachine.upperClaw3 = {
 clawMachine.lowerClaw3 = {
     parent: clawMachine.upperClaw3,
     defaultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     width: 0.3,
     height: 1.5,
@@ -314,8 +334,8 @@ var LowerArm = 1;
 var UpperArm = 2;
 
 
-var theta= [ 0, 0, 0];
-var gamma = [0,0,0];
+var theta = [0, 0, 0];
+var gamma = [0, 0, 0];
 var anim = 0;
 var animSign = 1;
 var stop = 0;
@@ -327,7 +347,6 @@ var modelViewMatrixLoc;
 var normalMatrix;
 
 var vBuffer, cBuffer;
-
 
 //----------------------------------------------------------------------------
 
@@ -347,8 +366,7 @@ function configureTexture(image) {
     requestCORSIfNotSameOrigin(image, image.src);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
-        gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 }
 //----------------------------------------------------------------------------
@@ -440,6 +458,19 @@ window.onload = function init() {
         alert("WebGL isn't available");
     }
 
+    console.log('WebGL version: ', gl.getParameter(gl.VERSION));
+    console.log('WebGL vendor : ', gl.getParameter(gl.VENDOR));
+    console.log('WebGL supported extensions: ', gl.getSupportedExtensions());
+
+    var depth_texture_extension = gl.getExtension('WEBGL_depth_texture');
+    if (!depth_texture_extension) {
+        console.log('This WebGL program requires the use of the ' +
+            'WEBGL_depth_texture extension. This extension is not supported ' +
+            'by your browser, so this WEBGL program is terminating.');
+    } else {
+        console.log('FUCK YEAH');
+    }
+
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -454,7 +485,7 @@ window.onload = function init() {
     }
 
     // Initialize framebuffer object (FBO)
-    fbo = initFramebufferObject(gl);
+    fbo = _createFrameBufferObject(gl, 512, 512);
     if (!fbo) {
         console.log('Failed to initialize frame buffer object');
         return;
@@ -531,8 +562,8 @@ window.onload = function init() {
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
         flatten(lightPosition));
 
-    gl.uniform1f(gl.getUniformLocation(program,
-        "shininess"), materialShininess);
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"),
+        materialShininess);
 
     texture = gl.createTexture();
 
@@ -651,7 +682,7 @@ window.onload = function init() {
         gamma[1] = event.target.value;
     };
     document.getElementById("man-slider3").onchange = function(event) {
-        gamma[2] =  event.target.value;
+        gamma[2] = event.target.value;
     };
 
 
@@ -745,8 +776,8 @@ var display = function() {
                 flatten(specularProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
                 flatten(lightPosition));
-            gl.uniform1f(gl.getUniformLocation(program,
-                "shininess"), materialShininess);
+            gl.uniform1f(gl.getUniformLocation(program, "shininess"),
+                materialShininess);
             break;
         } else if (materials[i].checked && materials[i].value == "metallic") {
             materialAmbient = vec4(0.3, 0.5, 0.9, 1.0);
@@ -764,8 +795,8 @@ var display = function() {
                 flatten(specularProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
                 flatten(lightPosition));
-            gl.uniform1f(gl.getUniformLocation(program,
-                "shininess"), materialShininess);
+            gl.uniform1f(gl.getUniformLocation(program, "shininess"),
+                materialShininess);
             break;
         }
     }
@@ -774,7 +805,6 @@ var display = function() {
 
     renderModel();
 }
-
 
 //------------------------------------------------------------------------------
 
@@ -805,16 +835,16 @@ function drawComponent(comp) {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
@@ -843,23 +873,24 @@ function base() {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
 //BLOCK-------------------------------------------------------------------------
+
 function block() {
-    var s = scale4(BASE_HEIGHT/1.5, BASE_HEIGHT/1.5, BASE_HEIGHT/1.5);
-    var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
+    var s = scale4(BASE_HEIGHT / 1.5, BASE_HEIGHT / 1.5, BASE_HEIGHT / 1.5);
+    var instanceMatrix = mult(translate(0.0, 0.5 * BASE_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
@@ -880,24 +911,61 @@ function block() {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
 //------------------------------------------------------------------------------
 
-
 function upperArm() {
     var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
+    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
+    g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    for (var i = 0, length = wireframe.length; i < length; i++) {
+        if (wireframe[i].checked && wireframe[i].value == "on") {
+            gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        }
+        if (wireframe[i].checked && wireframe[i].value == "off") {
+            gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        }
+    }
+
+    if (isOn) {
+        g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
+    }
+}
+
+//------------------------------------------------------------------------------
+
+function blockmanArm() {
+    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT * 2, UPPER_ARM_WIDTH);
     var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
@@ -934,86 +1002,9 @@ function upperArm() {
 
 //------------------------------------------------------------------------------
 
-function blockmanArm() {
-    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT*2, UPPER_ARM_WIDTH);
-    var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-
-    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
-    g_normalMatrix = inverse(t);
-    g_normalMatrix = transpose(g_normalMatrix);
-    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    for (var i = 0, length = wireframe.length; i < length; i++) {
-    if (wireframe[i].checked && wireframe[i].value == "on") {
-          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-      }
-    if (wireframe[i].checked && wireframe[i].value == "off") {
-          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-      }
-}
-
-	if(isOn) {
-		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
-
-		configureTexture(black);
-		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));
-		for (var i = 0, length = wireframe.length; i < length; i++) {
-    if (wireframe[i].checked && wireframe[i].value == "on") {
-          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-      }
-    if (wireframe[i].checked && wireframe[i].value == "off") {
-          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-      }
-}
-	}
-}
-
-//------------------------------------------------------------------------------
-
 function blockmanBody() {
-    var s = scale4(BASE_HEIGHT/1.5, BASE_HEIGHT*2.5, BASE_HEIGHT);
-    var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-
-    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
-    g_normalMatrix = inverse(t);
-    g_normalMatrix = transpose(g_normalMatrix);
-    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    for (var i = 0, length = wireframe.length; i < length; i++) {
-    if (wireframe[i].checked && wireframe[i].value == "on") {
-          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-      }
-    if (wireframe[i].checked && wireframe[i].value == "off") {
-          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-      }
-}
-
-	if(isOn) {
-		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
-
-		configureTexture(black);
-		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));
-		for (var i = 0, length = wireframe.length; i < length; i++) {
-    if (wireframe[i].checked && wireframe[i].value == "on") {
-          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-      }
-    if (wireframe[i].checked && wireframe[i].value == "off") {
-          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-      }
-}
-	}
-}
-
-//----------------------------------------------------------------------------
-
-
-function lowerArm() {
-    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0), s);
+    var s = scale4(BASE_HEIGHT / 1.5, BASE_HEIGHT * 2.5, BASE_HEIGHT);
+    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
@@ -1049,6 +1040,43 @@ function lowerArm() {
 
 //----------------------------------------------------------------------------
 
+function lowerArm() {
+    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
+    var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
+    g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    for (var i = 0, length = wireframe.length; i < length; i++) {
+        if (wireframe[i].checked && wireframe[i].value == "on") {
+            gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        }
+        if (wireframe[i].checked && wireframe[i].value == "off") {
+            gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        }
+    }
+
+    if (isOn) {
+        g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
+    }
+}
+
+//----------------------------------------------------------------------------
 
 function walls() {
     var s = scale4(WALL_WIDTH, WALL_HEIGHT, WALL_HEIGHT);
@@ -1062,18 +1090,17 @@ function walls() {
     gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
-
 //--------------------------------------------------------------------------
 
 function lightBox() {
-    var s = scale4(1.0, 1.0, 1.0);
+    var s = scale4(0.5, 0.5, 0.0001);
     var instanceMatrix = mult(translate(lightPosition[0], lightPosition[1], lightPosition[2]), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    g_normalMatrix = inverse(t);
-    g_normalMatrix = transpose(g_normalMatrix);
-    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    // g_normalMatrix = inverse(t);
+    // g_normalMatrix = transpose(g_normalMatrix);
+    // gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
@@ -1082,7 +1109,7 @@ function lightBox() {
 var renderModel = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    modelViewMatrix = translate(0, 0, 0);
+    modelViewMatrix = translate(0, 0, -1);
     configureTexture(wood);
     lightBox();
 
@@ -1125,8 +1152,8 @@ var renderModel = function() {
     base();
 
     //Right Front Leg
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width / 2, horse.base.height / 2, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x / 60 + theta[2] / 60, 1));
     configureTexture(stone);
     upperArm();
 
@@ -1170,11 +1197,6 @@ var renderModel = function() {
     configureTexture(wood);
     lowerArm();
 
-    modelViewMatrix = mult(wallviewMatrix, translate(0, -wall.base.height, -10));
-    modelViewMatrix = mult(modelViewMatrix, rotate(90, 0, 90, 0));
-    configureTexture(stone);
-    walls();
-
     modelViewMatrix = translate(0, 0, 0);
     var wallviewMatrix = rotate(0, 0, 1, 0);
 
@@ -1183,36 +1205,36 @@ var renderModel = function() {
     var threshold = 15;
 
     if (stop == 0) {
-        anim=anim+animSign;
-        if (anim>threshold){
-            animSign=-1;
-        }else if (anim<-threshold){
-            animSign=1;
+        anim = anim + animSign;
+        if (anim > threshold) {
+            animSign = -1;
+        } else if (anim < -threshold) {
+            animSign = 1;
         }
-        var wiggle = anim ;
+        var wiggle = anim;
 
 
-        var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
-        var wallviewMatrix = rotate(0,0,1,0);
+        var baseViewMatrix = rotate(gamma[0], 0, 1, 0);
+        var wallviewMatrix = rotate(0, 0, 1, 0);
         var x = Number(gamma[1]) + wiggle;
         var x2 = Number(gamma[1]) + wiggle;
-        modelViewMatrix = rotate(gamma[0], 0, 1, 0 );
+        modelViewMatrix = rotate(gamma[0], 0, 1, 0);
 
     } else {
-        anim=anim+animSign;
-        if (anim>threshold){
-            animSign=0;
-        }else if (anim<-threshold){
-            animSign=0;
+        anim = anim + animSign;
+        if (anim > threshold) {
+            animSign = 0;
+        } else if (anim < -threshold) {
+            animSign = 0;
         }
-        var wiggle = anim ;
+        var wiggle = anim;
 
 
-        var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
-        var wallviewMatrix = rotate(0,0,1,0);
+        var baseViewMatrix = rotate(gamma[0], 0, 1, 0);
+        var wallviewMatrix = rotate(0, 0, 1, 0);
         var x = Number(gamma[1]) + wiggle;
         var x2 = Number(gamma[1]) + wiggle;
-        modelViewMatrix = rotate(gamma[0], 0, 1, 0 );
+        modelViewMatrix = rotate(gamma[0], 0, 1, 0);
 
     }
 
@@ -1221,8 +1243,8 @@ var renderModel = function() {
     configureTexture(wood);
     block();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, -horse.base.height, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width * 1.5, -horse.base.height, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(90, 0, 90, 0));
     configureTexture(wood);
     blockmanBody();
 
@@ -1258,6 +1280,7 @@ var renderModel = function() {
         clawData.posx += 0.05 * vx;
         */
         clawData.posx = 6
+        // console.log(clawData.posx);
 
         // moving extend
         if (extend == 0) extend = 1;
@@ -1292,51 +1315,120 @@ var renderModel = function() {
     var pos;
 
     clawMachine.upperArm.offsetMat = mult(clawMachine.upperArm.defaultMat, translate(clawData.posx, 0, clawData.posx));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperArm.calculateMat());
+    clawMachine.upperArm.resultMat = clawMachine.upperArm.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperArm.resultMat);
     configureTexture(metal);
     drawComponent(clawMachine.upperArm);
 
     clawMachine.lowerArm.offsetMat = mult(clawMachine.lowerArm.defaultMat, translate(0, clawData.extend, 0));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerArm.calculateMat());
+    clawMachine.lowerArm.resultMat = clawMachine.lowerArm.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerArm.resultMat);
     configureTexture(stone);
     drawComponent(clawMachine.lowerArm);
 
     clawMachine.clawBase.offsetMat = mult(clawMachine.clawBase.defaultMat, mult(rotate(clawData.baserot, 0, 90, 0), rotate(clawData.baseraise, 0, 0, 90)));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.clawBase.calculateMat());
+    clawMachine.clawBase.resultMat = clawMachine.clawBase.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.clawBase.resultMat);
     configureTexture(wood);
     drawComponent(clawMachine.clawBase);
 
     clawMachine.upperClaw1.offsetMat = mult(clawMachine.upperClaw1.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw1.calculateMat());
+    clawMachine.upperClaw1.resultMat = clawMachine.upperClaw1.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw1.resultMat);
     configureTexture(metal);
     drawComponent(clawMachine.upperClaw1);
 
     clawMachine.lowerClaw1.offsetMat = mult(clawMachine.lowerClaw1.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw1.calculateMat());
+    clawMachine.lowerClaw1.resultMat = clawMachine.lowerClaw1.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw1.resultMat);
     configureTexture(stone);
     drawComponent(clawMachine.lowerClaw1);
 
     clawMachine.upperClaw2.offsetMat = mult(clawMachine.upperClaw2.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw2.calculateMat());
+    clawMachine.upperClaw2.resultMat = clawMachine.upperClaw2.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw2.resultMat);
     configureTexture(wood);
     drawComponent(clawMachine.upperClaw2);
 
     clawMachine.lowerClaw2.offsetMat = mult(clawMachine.lowerClaw2.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw2.calculateMat());
+    clawMachine.lowerClaw2.resultMat = clawMachine.lowerClaw2.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw2.resultMat);
     configureTexture(metal);
     drawComponent(clawMachine.lowerClaw2);
 
     clawMachine.upperClaw3.offsetMat = mult(clawMachine.upperClaw3.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw3.calculateMat());
+    clawMachine.upperClaw3.resultMat = clawMachine.upperClaw3.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw3.resultMat);
     configureTexture(stone);
     drawComponent(clawMachine.upperClaw3);
 
     clawMachine.lowerClaw3.offsetMat = mult(clawMachine.lowerClaw3.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
+    clawMachine.lowerClaw3.resultMat = clawMachine.lowerClaw3.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.resultMat);
     configureTexture(wood);
     drawComponent(clawMachine.lowerClaw3);
 
+
+    modelViewMatrix = mult(wallviewMatrix, translate(0, -wall.base.height, -8));
+    modelViewMatrix = mult(modelViewMatrix, rotate(90, 0, 90, 0));
+    configureTexture(brick);
+    walls();
+
 };
+
+/** ---------------------------------------------------------------------
+ * Create a frame buffer for rendering into texture objects.
+ * @param gl WebGLRenderingContext
+ * @param width Number The width (in pixels) of the rendering (must be power of 2)
+ * @param height Number The height (in pixels) of the rendering (must be power of 2)
+ * @returns WebGLFramebuffer object
+ */
+function _createFrameBufferObject(gl, width, height) {
+    var frame_buffer, color_buffer, depth_buffer, status;
+
+    // Step 1: Create a frame buffer object
+    frame_buffer = gl.createFramebuffer();
+
+    // Step 2: Create and initialize a texture buffer to hold the colors.
+    color_buffer = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, color_buffer);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0,
+        gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // Step 3: Create and initialize a texture buffer to hold the depth values.
+    // Note: the WEBGL_depth_texture extension is required for this to work
+    //       and for the gl.DEPTH_COMPONENT texture format to be supported.
+    depth_buffer = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, depth_buffer);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, width, height, 0,
+        gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // Step 4: Attach the specific buffers to the frame buffer.
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, color_buffer, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depth_buffer, 0);
+
+    // Step 5: Verify that the frame buffer is valid.
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        console.log("The created frame buffer is invalid: " + status.toString());
+    }
+
+    // Unbind these new objects, which makes the default frame buffer the
+    // target for rendering.
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return frame_buffer;
+}
 
 function initFramebufferObject(gl) {
     var framebuffer, texture, depthBuffer;
