@@ -54,6 +54,8 @@ var viewerPos;
 var isForward;
 var isOn = 1;
 var isLightMove = true;
+var isFreeCam = true;
+var camx = 0; var camy = 0; var camz = 20;
 
 var vertices = [
     vec4(-0.5, -0.5, 0.5, 1.0),
@@ -589,40 +591,60 @@ window.onload = function init() {
     document.getElementById("stop-l").onclick = function(event) {
         isLightMove = !isLightMove;
     }
-
+	
     document.onkeydown = function(event) {
-        if (demo) return;
-        switch (event.key) {
-            case "Enter":
-                extend = 1;
+        switch(event.key) {
+            case "i":
+				if(isFreeCam && camy < 20)
+					camy += 1;
                 break;
-            case "ArrowLeft":
-                vx = 1;
+            case "k":
+				if(isFreeCam && camy > -20)
+					camy -= 1;
                 break;
-            case "ArrowRight":
-                vx = -1;
+            case "j":
+				if(isFreeCam && camx > -20)
+					camx -= 1;
                 break;
-            case "ArrowUp":
-                vz = 1;
+            case "l":
+				if(isFreeCam && camx < 20)
+					camx += 1;
                 break;
-            case "ArrowDown":
-                vz = -1;
-                break;
-            case "q":
-                clawopen = 1;
-                break;
-            case "a":
-                basez = 1;
-                break;
-            case "d":
-                basez = -1;
-                break;
-            case "w":
-                basey = 1;
-                break;
-            case "s":
-                basey = -1;
-                break;
+		}
+		
+		if (!demo) {
+			switch (event.key) {
+				case "Enter":
+					extend = 1;
+					break;
+				case "ArrowLeft":
+					vx = 1;
+					break;
+				case "ArrowRight":
+					vx = -1;
+					break;
+				case "ArrowUp":
+					vz = 1;
+					break;
+				case "ArrowDown":
+					vz = -1;
+					break;
+				case "q":
+					clawopen = 1;
+					break;
+				case "a":
+					basez = 1;
+					break;
+				case "d":
+					basez = -1;
+					break;
+				case "w":
+					basey = 1;
+					break;
+				case "s":
+					basey = -1;
+					break;
+			}
         }
     }
 
@@ -683,7 +705,7 @@ window.onload = function init() {
     normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
     projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
-    projectionMatrix = mult(projectionMatrix, lookAt(new vec3(0, 0, 20), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+    projectionMatrix = mult(projectionMatrix, lookAt(new vec3(camx, camy, camz), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
 
@@ -698,6 +720,7 @@ var display = function() {
     var radios = document.getElementsByName('radio');
     var materials = document.getElementsByName('material');
     var onLight = document.getElementsByName('onLight');
+    var ctrlcam = document.getElementsByName('ctrl-cam');
 
     if (isLightMove) {
         if (isForward) {
@@ -731,6 +754,33 @@ var display = function() {
 
     gl.uniform1i(gl.getUniformLocation(program, "isOn"), isOn);
 
+	for (var i = 0, length = ctrlcam.length; i < length; i++) {
+        if (ctrlcam[i].checked && ctrlcam[i].value == "free") {
+            isFreeCam = true;
+			document.getElementById("ctrl-cam-div1").style.display = "block";
+			document.getElementById("ctrl-cam-div2").style.display = "none";
+            break;
+        } else if (ctrlcam[i].checked && ctrlcam[i].value == "crane") {
+            isFreeCam = false;
+			document.getElementById("ctrl-cam-div1").style.display = "none";
+			document.getElementById("ctrl-cam-div2").style.display = "block";
+            break;
+        }
+    }
+	
+	if(isFreeCam){
+		projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
+		projectionMatrix = mult(projectionMatrix, lookAt(new vec3(camx, camy, camz), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+
+		gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));		
+	} else {
+		projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
+		projectionMatrix = mult(projectionMatrix, lookAt(new vec3(-clawData.posx, 7, clawData.posx+2), new vec3(0, -20, 0), new vec3(0.0, 1.0, 0.0)));
+
+		gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+	}
+	
+	
     for (var i = 0, length = materials.length; i < length; i++) {
         if (materials[i].checked && materials[i].value == "gloss") {
             // do whatever you want with the checked radio
@@ -1297,7 +1347,7 @@ var renderModel = function() {
         if (clawData.clawangle <= -25) clawopen = 1;
         clawData.clawangle += 0.5 * clawopen;
     } else {
-        if ((vx > 0 && clawData.posx < 5) || (vx < 0 && clawData.posx > -5)) clawData.posx += 0.05 * vx;
+        if ((vx > 0 && clawData.posx < 7) || (vx < 0 && clawData.posx > 4)) clawData.posx += 0.05 * vx;
         if ((extend > 0 && clawData.extend < 1.5) || (extend < 0 && clawData.extend > -1.5)) clawData.extend += 0.035 * extend;
         if ((basey > 0 && clawData.baseraise < 90) || (basey < 0 && clawData.baseraise > 0)) clawData.baseraise += 0.7 * basey;
         clawData.baserot += 1 * basez;
