@@ -161,7 +161,7 @@ var image6 = new Uint8Array(4*texSize*texSize);
     }
 
 var horse = {
-    render: renderHorse,
+    render: renderModel,
     base: {
         width: 5.0,
         height: 2.0
@@ -572,7 +572,7 @@ window.onload = function init() {
             case "ArrowDown":
             vz = -1;
             break;
-            case " ":
+            case "q":
             clawopen = 1;
             break;
             case "a":
@@ -608,7 +608,7 @@ window.onload = function init() {
             case "ArrowDown":
             vz = 0;
             break;
-            case " ":
+            case "q":
             clawopen = -1;
             break;
             case "a":
@@ -755,7 +755,7 @@ var display = function () {
 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    renderHorse();
+    renderModel();
 }
 
 
@@ -805,6 +805,43 @@ function drawComponent(comp) {
 
 function base() {
     var s = scale4(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+    g_normalMatrix = inverse(t);
+    g_normalMatrix = transpose(g_normalMatrix);
+    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    for (var i = 0, length = wireframe.length; i < length; i++) {
+    if (wireframe[i].checked && wireframe[i].value == "on") {
+          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+      }
+    if (wireframe[i].checked && wireframe[i].value == "off") {
+          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+      }
+}
+
+	if(isOn) {
+		g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+		g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
+		g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+
+		configureTexture(black);
+		gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(g_mvpMatrixFromLight));
+		for (var i = 0, length = wireframe.length; i < length; i++) {
+    if (wireframe[i].checked && wireframe[i].value == "on") {
+          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+      }
+    if (wireframe[i].checked && wireframe[i].value == "off") {
+          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+      }
+}
+	}
+}
+
+//BLOCK-------------------------------------------------------------------------
+function block() {
+    var s = scale4(BASE_HEIGHT, BASE_HEIGHT, BASE_HEIGHT);
     var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
@@ -931,14 +968,7 @@ function walls()
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    for (var i = 0, length = wireframe.length; i < length; i++) {
-    if (wireframe[i].checked && wireframe[i].value == "on") {
-          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-      }
-    if (wireframe[i].checked && wireframe[i].value == "off") {
-          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-      }
-}
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
 
@@ -953,19 +983,12 @@ function lightBox() {
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    for (var i = 0, length = wireframe.length; i < length; i++) {
-    if (wireframe[i].checked && wireframe[i].value == "on") {
-          gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-      }
-    if (wireframe[i].checked && wireframe[i].value == "off") {
-          gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-      }
-}
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
 //----------------------------------------------------------------------------------
 
-var renderHorse = function() {
+var renderModel = function() {
     gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = translate(0, 0, 0);
@@ -1009,6 +1032,12 @@ var renderHorse = function() {
     }
     configureTexture(metal);
     base();
+
+    //Right Front Leg
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, horse.base.height*1.5, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    configureTexture(stone);
+    block();
 
     //Right Front Leg
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
@@ -1064,12 +1093,19 @@ var renderHorse = function() {
     modelViewMatrix = translate(0,0,0);
     var wallviewMatrix = rotate(0,0,1,0);
 
+    //Robotic Arm---------------------------------------------------------------
+
     if (demo) {
-        // moving posx
+        //
+
+        /* moving posx
         if (vx == 0) vx = 1;
         if (clawData.posx >= 5) vx = -1;
         if (clawData.posx <= -5) vx = 1;
         clawData.posx += 0.05 * vx;
+        */
+        clawData.posx = 6
+        console.log(clawData.posx);
 
         // moving extend
         if (extend == 0) extend = 1;

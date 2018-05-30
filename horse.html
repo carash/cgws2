@@ -7,7 +7,7 @@ attribute vec4 a_Position;
 uniform mat4 u_MvpMatrix;
 
 void main() {
-  gl_Position = u_MvpMatrix * a_Position;
+    gl_Position = u_MvpMatrix * a_Position;
 }
 </script>
 
@@ -17,11 +17,11 @@ void main() {
 precision mediump float;
 #endif
 void main() {
-  const vec4 bitShift = vec4(1.0, 256.0, 256.0 * 256.0, 256.0 * 256.0 * 256.0);
-  const vec4 bitMask = vec4(1.0/256.0, 1.0/256.0, 1.0/256.0, 0.0);
-  vec4 rgbaDepth = fract(gl_FragCoord.z * bitShift); // Calculate the value stored into each byte
-  rgbaDepth -= rgbaDepth.gbaa * bitMask; // Cut off the value which do not fit in 8 bits
-  gl_FragColor = rgbaDepth;
+    const vec4 bitShift = vec4(1.0, 256.0, 256.0 * 256.0, 256.0 * 256.0 * 256.0);
+    const vec4 bitMask = vec4(1.0/256.0, 1.0/256.0, 1.0/256.0, 0.0);
+    vec4 rgbaDepth = fract(gl_FragCoord.z * bitShift); // Calculate the value stored into each byte
+    rgbaDepth -= rgbaDepth.gbaa * bitMask; // Cut off the value which do not fit in 8 bits
+    gl_FragColor = rgbaDepth;
 }
 </script>
 
@@ -45,43 +45,43 @@ uniform mat4 u_MvpMatrixFromLight;
 varying vec4 fPositionFromLight;
 
 void main() {
-	vec3 pos = -(modelViewMatrix * vPosition).xyz;
+    vec3 pos = -(modelViewMatrix * vPosition).xyz;
 
-	//fixed light postion
-	vec3 light = lightPosition.xyz;
-	vec3 L = normalize( light - pos );
-	vec3 E = normalize( -pos );
-	vec3 H = normalize( L + E );
-	vec4 NN = vec4(vNormal.xyz,0);
+    //fixed light postion
+    vec3 light = lightPosition.xyz;
+    vec3 L = normalize( light - pos );
+    vec3 E = normalize( -pos );
+    vec3 H = normalize( L + E );
+    vec4 NN = vec4(vNormal.xyz,0);
 
-	// Transform vertex normal into eye coordinates
-	vec3 N = normalize((modelViewMatrix*NN).xyz);
+    // Transform vertex normal into eye coordinates
+    vec3 N = normalize((modelViewMatrix*NN).xyz);
 
-	// Compute terms in the illumination equation
-	vec4 ambient = ambientProduct;
+    // Compute terms in the illumination equation
+    vec4 ambient = ambientProduct;
 
-	float Kd = max(dot(L, N), 0.0 );
-	vec4  diffuse = Kd*diffuseProduct;
+    float Kd = max(dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
 
-	float Ks = pow(max(dot(N, H), 0.0), shininess );
-	vec4  specular = Ks * specularProduct;
+    float Ks = pow(max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
 
-	if( dot(L, N) < 0.0 ) {
-	specular = vec4(0.0, 0.0, 0.0, 1.0);
-	}
+    if( dot(L, N) < 0.0 ) {
+        specular = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 
-	gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-	fColor = ambient + diffuse + specular;
-	fColor.a = 1.0;
-	fTexCoord = vTexCoord;
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    fColor = ambient + diffuse + specular;
+    fColor.a = 1.0;
+    fTexCoord = vTexCoord;
 
-	fPositionFromLight = u_MvpMatrixFromLight * vPosition;
+    fPositionFromLight = u_MvpMatrixFromLight * vPosition;
 
-	//vec3 lightDirection = normalize(vec3(0.0, 0.0, 1.0));
-	//vec3 normal = normalize((normalMatrix * vNormal).xyz);
-	//float nDotL = max(dot(normal, lightDirection), 0.0);
-	//fColor = vec4(vColor.xyz * nDotL, vColor.w);
-	//gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    //vec3 lightDirection = normalize(vec3(0.0, 0.0, 1.0));
+    //vec3 normal = normalize((normalMatrix * vNormal).xyz);
+    //float nDotL = max(dot(normal, lightDirection), 0.0);
+    //fColor = vec4(vColor.xyz * nDotL, vColor.w);
+    //gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 
 }
 </script>
@@ -99,19 +99,19 @@ uniform sampler2D texture;
 varying vec4 fPositionFromLight;
 
 float unpackDepth(const in vec4 rgbaDepth) {
-  const vec4 bitShift = vec4(1.0, 1.0/256.0, 1.0/(256.0*256.0), 1.0/(256.0*256.0*256.0));
-  float depth = dot(rgbaDepth, bitShift); // Use dot() since the calculations is same
-  return depth;
+    const vec4 bitShift = vec4(1.0, 1.0/256.0, 1.0/(256.0*256.0), 1.0/(256.0*256.0*256.0));
+    float depth = dot(rgbaDepth, bitShift); // Use dot() since the calculations is same
+    return depth;
 }
 
 void main()
 {
-	vec3 shadowCoord = (fPositionFromLight.xyz/fPositionFromLight.w)/2.0 + 0.5;
-	vec4 rgbaDepth = texture2D(u_ShadowMap, shadowCoord.xy);
-	float depth = unpackDepth(rgbaDepth); // Recalculate the z value from the rgba
-	float visibility = (shadowCoord.z > depth + 0.0015) ? 0.7 : 1.0;
-	gl_FragColor = vec4(fColor.rgb * visibility, fColor.a) * texture2D( texture, fTexCoord );
-	//gl_FragColor = vec4(fColor.rgb * visibility, fColor.a);
+    vec3 shadowCoord = (fPositionFromLight.xyz/fPositionFromLight.w)/2.0 + 0.5;
+    vec4 rgbaDepth = texture2D(u_ShadowMap, shadowCoord.xy);
+    float depth = unpackDepth(rgbaDepth); // Recalculate the z value from the rgba
+    float visibility = (shadowCoord.z > depth + 0.0015) ? 0.7 : 1.0;
+    gl_FragColor = vec4(fColor.rgb * visibility, fColor.a) * texture2D( texture, fTexCoord );
+    //gl_FragColor = vec4(fColor.rgb * visibility, fColor.a);
     //gl_FragColor = fColor * texture2D( texture, fTexCoord );
 }
 </script>
@@ -122,94 +122,100 @@ void main()
 <script type="text/javascript" src="js/model.js"></script>
 
 <body>
-<div class="container" style="margin-top: 50px;">
-    <div class="row">
-        <div class="col-md">
-            <canvas id="gl-canvas" width="512" height="512">
-            Oops ... your browser doesn't support the HTML5 canvas element
-            </canvas>
+    <div class="container" style="margin-top: 50px;">
+        <div class="row">
+            <div class="col-lg" style="text-align: center">
+                <h1 style="text-align:center; font-weight: bold; border-bottom: 1px solid lightgrey; padding: 0 10px 20px 10px">WebGL Worksheet 3</h1>
+                <canvas id="gl-canvas" width="1024" height="768">
+                    Oops ... your browser doesn't support the HTML5 canvas element
+                </canvas>
+            </div>
         </div>
-        <div class="col-md">
-            <h1 style="text-align:center; font-weight: bold; border-bottom: 1px solid lightgrey; padding: 0 10px 20px 10px">WebGL Worksheet 3</h1>
-            <h3 style="text-align: center; margin-top: 40px; margin-bottom: 40px;">Model Control Panel</h3>
-			<form action="" autocomplete="off">
-		        <input type="radio" name="radio" value="horse" checked="checked">Horse<br>
-		        <input type="radio" name="radio" value="claw">Claw<br>
-		    </form>
-            <div class="row" style="margin-bottom: 40px;">
-                <div class="col-md" style="text-align: center;">
-                    <button class="btn btn-default" id="demo" style="font-size: 24px; padding: 10px 20px; font-weight: bold;" disabled> DEMO </button>
-                </div>
-                <div class="col-md" style="text-align: center;">
-                    <button class="btn btn-default" id="stop" style="font-size: 24px; padding: 10px 20px; font-weight: bold;"> STOP </button>
-                </div>
-                <div class="col-md" style="text-align: center;">
-                    <button class="btn btn-default" id="stop-l" style="font-size: 24px; padding: 10px 20px; font-weight: bold;"> STOP LIGHTING </button>
+        <div class="row">
+            <div class="col-lg">
+                <h3 style="text-align: center; margin-top: 40px; margin-bottom: 40px;">Model Control Panel</h3>
+            </div>
+        </div>
+        <div class="row" style="margin-bottom: 40px;">
+            <div class="col-md" style="text-align: center;">
+                <button class="btn btn-default" id="demo" style="font-size: 24px; padding: 10px 20px; font-weight: bold;" disabled> DEMO </button>
+            </div>
+            <div class="col-md" style="text-align: center;">
+                <button class="btn btn-default" id="stop" style="font-size: 24px; padding: 10px 20px; font-weight: bold;"> STOP </button>
+            </div>
+            <div class="col-md" style="text-align: center;">
+                <button class="btn btn-default" id="stop-l" style="font-size: 24px; padding: 10px 20px; font-weight: bold;"> STOP LIGHTING </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg">
+                <div id="horseParam">
+                    <div>
+                        body angle -180 <input id="slider1" type="range"
+                        min="-180" max="180" step="10" value="0"
+                        />
+                        180
+                    </div><br/>
+
+                    <div>
+                        lower arm angle -15 <input id="slider2" type="range"
+                        min="-15" max="15" step="1" value="0"
+                        />
+                        15
+                    </div><br/>
+
+                    <div>
+                        upper arm angle -15 <input id="slider3" type="range"
+                        min="-15" max="15" step="1" value="0"
+                        />
+                        15
+                    </div><br/>
                 </div>
             </div>
-			<div id="horseParam">
-            	<div>
-	            body angle -180 <input id="slider1" type="range"
-	             min="-180" max="180" step="10" value="0"
-	              />
-	             180
-	            </div><br/>
-
-	            <div>
-	            lower arm angle -15 <input id="slider2" type="range"
-	             min="-15" max="15" step="1" value="0"
-	              />
-	             15
-	            </div><br/>
-
-	            <div>
-	            upper arm angle -15 <input id="slider3" type="range"
-	             min="-15" max="15" step="1" value="0"
-	              />
-	             15
-	            </div><br/>
-			</div>
-			<div id="clawParam">
-				<span>
-					<pre>hold <strong>&lt;Enter&gt;</strong> to extend arm, release to retract</pre>
-				</span>
-				<span>
-					<pre>hold <strong>&lt;Space&gt;</strong> to close claw, release to release</pre>
-				</span>
-				<span>
-					<pre>hold <strong>&lt;left&gt;</strong>/<strong>&lt;right&gt;</strong> to move left/right</pre>
-				</span>
-				<span>
-					<pre>hold <strong>&lt;a&gt;</strong>/<strong>&lt;d&gt;</strong> to rotate CW/CCW</pre>
-				</span>
-				<span>
-					<pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
-				</span>
-			</div>
-			<div class="row">
-				<div class="col-md">
-					<form action="" autocomplete="off">
-						<h1>Materials</h1>
-						<input type="radio" name="material" value="gloss" checked="checked">Copper<br>
-						<input type="radio" name="material" value="matte">Brushed Metal<br>
-						<input type="radio" name="material" value="metallic">Stainless Steel<br>
-					</form>
-				</div>
-				<div class="col-md">
-					<form action="" autocomplete="off">
-						<h1>Lights</h1>
-						<input type="radio" name="onLight" value="on" checked="checked">Light On<br>
-						<input type="radio" name="onLight" value="off">Light Off<br>
-					</form>
-                    <form action="" autocomplete="off">
-						<h1>Wireframe Mode</h1>
-						<input type="radio" name="wireframe" value="off" checked="checked">Off<br>
-						<input type="radio" name="wireframe" value="on">On<br>
-					</form>
-				</div>
-			</div>
+            <div class="col-lg">
+                <div id="clawParam">
+                    <span>
+                        <pre>hold <strong>&lt;Enter&gt;</strong> to extend arm, release to retract</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;q&gt;</strong> to close claw, release to release</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;left&gt;</strong>/<strong>&lt;right&gt;</strong> to move left/right</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;a&gt;</strong>/<strong>&lt;d&gt;</strong> to rotate CW/CCW</pre>
+                    </span>
+                    <span>
+                        <pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg">
+                <form action="" autocomplete="off">
+                    <h1>Materials</h1>
+                    <input type="radio" name="material" value="gloss" checked="checked">Copper<br>
+                    <input type="radio" name="material" value="matte">Brushed Metal<br>
+                    <input type="radio" name="material" value="metallic">Stainless Steel<br>
+                </form>
+                <form action="" autocomplete="off" style="margin-top: 20px;">
+                    <h1>Wireframe Mode</h1>
+                    <input type="radio" name="wireframe" value="off" checked="checked">Off<br>
+                    <input type="radio" name="wireframe" value="on">On<br>
+                </form>
+            </div>
+            <div class="col-lg">
+                <form action="" autocomplete="off">
+                    <h1>Lights</h1>
+                    <input type="radio" name="onLight" value="on">Light On<br>
+                    <input type="radio" name="onLight" value="off" checked="checked">Light Off<br>
+                </form>
+            </div>
         </div>
     </div>
+</div>
 </div>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
