@@ -307,6 +307,8 @@ var viewProjMatrixFromLight, mvpMatrixFromLight, shadowMap;
 
 // Array of rotation angles (in degrees) for each rotation axis
 
+
+var headTilt = 0;
 var Base = 0;
 var LowerArm = 1;
 var UpperArm = 2;
@@ -641,12 +643,17 @@ window.onload = function init() {
         theta[2] = event.target.value;
     };
 
+    document.getElementById("man-slider1").onchange = function(event) {
+        headTilt = event.target.value;
+    }
+
     document.getElementById("man-slider2").onchange = function(event) {
         gamma[1] = event.target.value;
     };
     document.getElementById("man-slider3").onchange = function(event) {
         gamma[2] =  event.target.value;
     };
+
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     normalMatrix = gl.getUniformLocation(program, "normalMatrix");
@@ -1185,7 +1192,7 @@ var renderModel = function() {
         var wiggle = anim ;
 
 
-        var baseViewMatrix= rotate(gamma[0], 0, 1, 0 );
+        var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
         var wallviewMatrix = rotate(0,0,1,0);
         var x = Number(gamma[1]) + wiggle;
         var x2 = Number(gamma[1]) + wiggle;
@@ -1201,7 +1208,7 @@ var renderModel = function() {
         var wiggle = anim ;
 
 
-        var baseViewMatrix= rotate(gamma[0], 0, 1, 0 );
+        var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
         var wallviewMatrix = rotate(0,0,1,0);
         var x = Number(gamma[1]) + wiggle;
         var x2 = Number(gamma[1]) + wiggle;
@@ -1210,7 +1217,7 @@ var renderModel = function() {
     }
 
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, horse.base.height*1.5, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix  = mult(modelViewMatrix, rotate(180 - headTilt, 0, 90, 0) );
     configureTexture(wood);
     block();
 
@@ -1219,23 +1226,23 @@ var renderModel = function() {
     configureTexture(wood);
     blockmanBody();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+0.5, horse.base.height-3.5, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+0.5, horse.base.height, horse.base.width/1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 - x / 60 + gamma[2] / 60, 1));
     configureTexture(stone);
     blockmanArm();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+4.5, horse.base.height-3.5, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+4.5, horse.base.height, horse.base.width/1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x / 60 - gamma[2] / 60, 1));
     configureTexture(stone);
     blockmanArm();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+2, horse.base.height-10, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+2, horse.base.height-7, horse.base.width/1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x/2 / 60 - gamma[1] / 60, 1));
     configureTexture(wood);
     blockmanArm();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+3.5, horse.base.height-10, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+3.5, horse.base.height-7, horse.base.width/1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 - x/2 / 60 + gamma[1] / 60, 1));
     configureTexture(wood);
     blockmanArm();
 
