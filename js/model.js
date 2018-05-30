@@ -189,21 +189,26 @@ var wall = {
 };
 
 var calcMat = function() {
-    var mat = translate(0, 0, 0);
-    var par = [this.offsetMat];
-    var curr = this.parent;
+    // var mat = translate(0, 0, 0);
+    // var par = [this.offsetMat];
+    // var curr = this.parent;
+    //
+    // while (curr) {
+    //     par.push(curr.offsetMat);
+    //     curr = curr.parent;
+    // }
+    //
+    // par.reverse()
+    // par.forEach(function(m) {
+    //     mat = mult(mat, m);
+    // });
+    //
+    // return mat
 
-    while (curr) {
-        par.push(curr.offsetMat);
-        curr = curr.parent;
+    if (this.parent == null) {
+        return this.offsetMat;
     }
-
-    par.reverse()
-    par.forEach(function(m) {
-        mat = mult(mat, m);
-    });
-
-    return mat
+    return mult(this.parent.resultMat, this.offsetMat)
 }
 
 var clawMachine = {}
@@ -211,6 +216,7 @@ var clawMachine = {}
 clawMachine.upperArm = {
     parent: null,
     defaultMat: mult(translate(0.0, 5.0, 0.0), rotate(180, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 5.0, 0.0), rotate(180, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 5.0, 0.0), rotate(180, 0, 0, 90)),
     width: 1.0,
     height: 3.0,
@@ -220,6 +226,7 @@ clawMachine.upperArm = {
 clawMachine.lowerArm = {
     parent: clawMachine.upperArm,
     defaultMat: translate(0.0, 1.5, 0.0),
+    resultMat: translate(0.0, 1.5, 0.0),
     offsetMat: translate(0.0, 1.5, 0.0),
     width: 0.7,
     height: 5.5,
@@ -229,6 +236,7 @@ clawMachine.lowerArm = {
 clawMachine.clawBase = {
     parent: clawMachine.lowerArm,
     defaultMat: translate(0.0, 5.5, 0.0),
+    resultMat: translate(0.0, 5.5, 0.0),
     offsetMat: translate(0.0, 5.5, 0.0),
     width: 2.3,
     height: 1.0,
@@ -238,6 +246,7 @@ clawMachine.clawBase = {
 clawMachine.upperClaw1 = {
     parent: clawMachine.clawBase,
     defaultMat: mult(translate(0.6, 1.0, 0.0), rotate(-45, 0, 0, 90)),
+    resultMat: mult(translate(0.6, 1.0, 0.0), rotate(-45, 0, 0, 90)),
     offsetMat: mult(translate(0.6, 1.0, 0.0), rotate(-45, 0, 0, 90)),
     width: 0.4,
     height: 1.5,
@@ -247,6 +256,7 @@ clawMachine.upperClaw1 = {
 clawMachine.lowerClaw1 = {
     parent: clawMachine.upperClaw1,
     defaultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     width: 0.3,
     height: 1.5,
@@ -256,6 +266,7 @@ clawMachine.lowerClaw1 = {
 clawMachine.upperClaw2 = {
     parent: clawMachine.clawBase,
     defaultMat: mult(mult(translate(-0.3, 1.0, 0.5), rotate(-120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
+    resultMat: mult(mult(translate(-0.3, 1.0, 0.5), rotate(-120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     offsetMat: mult(mult(translate(-0.3, 1.0, 0.5), rotate(-120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     width: 0.4,
     height: 1.5,
@@ -265,6 +276,7 @@ clawMachine.upperClaw2 = {
 clawMachine.lowerClaw2 = {
     parent: clawMachine.upperClaw2,
     defaultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     width: 0.3,
     height: 1.5,
@@ -274,6 +286,7 @@ clawMachine.lowerClaw2 = {
 clawMachine.upperClaw3 = {
     parent: clawMachine.clawBase,
     defaultMat: mult(mult(translate(-0.3, 1.0, -0.5), rotate(120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
+    resultMat: mult(mult(translate(-0.3, 1.0, -0.5), rotate(120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     offsetMat: mult(mult(translate(-0.3, 1.0, -0.5), rotate(120, 0, 90, 0)), rotate(-45, 0, 0, 90)),
     width: 0.4,
     height: 1.5,
@@ -283,6 +296,7 @@ clawMachine.upperClaw3 = {
 clawMachine.lowerClaw3 = {
     parent: clawMachine.upperClaw3,
     defaultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
+    resultMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     offsetMat: mult(translate(0.0, 1.5, 0.0), rotate(60, 0, 0, 90)),
     width: 0.3,
     height: 1.5,
@@ -325,7 +339,6 @@ var normalMatrix;
 
 var vBuffer, cBuffer;
 
-
 //----------------------------------------------------------------------------
 
 function requestCORSIfNotSameOrigin(img, url) {
@@ -344,8 +357,7 @@ function configureTexture(image) {
     requestCORSIfNotSameOrigin(image, image.src);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
-        gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 }
 //----------------------------------------------------------------------------
@@ -760,7 +772,6 @@ var display = function() {
     renderModel();
 }
 
-
 //------------------------------------------------------------------------------
 
 var g_normalMatrix = new mat4(); // Coordinate transformation matrix for normals
@@ -842,6 +853,7 @@ function base() {
 }
 
 //BLOCK-------------------------------------------------------------------------
+
 function block() {
     var s = scale4(BASE_HEIGHT, BASE_HEIGHT, BASE_HEIGHT);
     var instanceMatrix = mult(translate(0.0, 0.5 * BASE_HEIGHT, 0.0), s);
@@ -879,7 +891,6 @@ function block() {
 }
 
 //------------------------------------------------------------------------------
-
 
 function upperArm() {
     var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
@@ -919,7 +930,6 @@ function upperArm() {
 
 //----------------------------------------------------------------------------
 
-
 function lowerArm() {
     var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
     var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0), s);
@@ -958,7 +968,6 @@ function lowerArm() {
 
 //----------------------------------------------------------------------------
 
-
 function walls() {
     var s = scale4(WALL_WIDTH, WALL_HEIGHT, WALL_HEIGHT);
     var instanceMatrix = mult(translate(0.0, 0.5 * WALL_HEIGHT, 0.0), s);
@@ -970,7 +979,6 @@ function walls() {
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
-
 
 //--------------------------------------------------------------------------
 
@@ -1105,7 +1113,7 @@ var renderModel = function() {
         clawData.posx += 0.05 * vx;
         */
         clawData.posx = 6
-        console.log(clawData.posx);
+        // console.log(clawData.posx);
 
         // moving extend
         if (extend == 0) extend = 1;
@@ -1140,47 +1148,56 @@ var renderModel = function() {
     var pos;
 
     clawMachine.upperArm.offsetMat = mult(clawMachine.upperArm.defaultMat, translate(clawData.posx, 0, clawData.posx));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperArm.calculateMat());
+    clawMachine.upperArm.resultMat = clawMachine.upperArm.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperArm.resultMat);
     configureTexture(metal);
     drawComponent(clawMachine.upperArm);
 
     clawMachine.lowerArm.offsetMat = mult(clawMachine.lowerArm.defaultMat, translate(0, clawData.extend, 0));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerArm.calculateMat());
+    clawMachine.lowerArm.resultMat = clawMachine.lowerArm.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerArm.resultMat);
     configureTexture(stone);
     drawComponent(clawMachine.lowerArm);
 
     clawMachine.clawBase.offsetMat = mult(clawMachine.clawBase.defaultMat, mult(rotate(clawData.baserot, 0, 90, 0), rotate(clawData.baseraise, 0, 0, 90)));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.clawBase.calculateMat());
+    clawMachine.clawBase.resultMat = clawMachine.clawBase.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.clawBase.resultMat);
     configureTexture(wood);
     drawComponent(clawMachine.clawBase);
 
     clawMachine.upperClaw1.offsetMat = mult(clawMachine.upperClaw1.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw1.calculateMat());
+    clawMachine.upperClaw1.resultMat = clawMachine.upperClaw1.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw1.resultMat);
     configureTexture(metal);
     drawComponent(clawMachine.upperClaw1);
 
     clawMachine.lowerClaw1.offsetMat = mult(clawMachine.lowerClaw1.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw1.calculateMat());
+    clawMachine.lowerClaw1.resultMat = clawMachine.lowerClaw1.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw1.resultMat);
     configureTexture(stone);
     drawComponent(clawMachine.lowerClaw1);
 
     clawMachine.upperClaw2.offsetMat = mult(clawMachine.upperClaw2.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw2.calculateMat());
+    clawMachine.upperClaw2.resultMat = clawMachine.upperClaw2.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw2.resultMat);
     configureTexture(wood);
     drawComponent(clawMachine.upperClaw2);
 
     clawMachine.lowerClaw2.offsetMat = mult(clawMachine.lowerClaw2.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw2.calculateMat());
+    clawMachine.lowerClaw2.resultMat = clawMachine.lowerClaw2.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw2.resultMat);
     configureTexture(metal);
     drawComponent(clawMachine.lowerClaw2);
 
     clawMachine.upperClaw3.offsetMat = mult(clawMachine.upperClaw3.defaultMat, rotate(clawData.clawangle, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw3.calculateMat());
+    clawMachine.upperClaw3.resultMat = clawMachine.upperClaw3.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.upperClaw3.resultMat);
     configureTexture(stone);
     drawComponent(clawMachine.upperClaw3);
 
     clawMachine.lowerClaw3.offsetMat = mult(clawMachine.lowerClaw3.defaultMat, rotate(clawData.clawgrip, 0, 0, 90));
-    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.calculateMat());
+    clawMachine.lowerClaw3.resultMat = clawMachine.lowerClaw3.calculateMat();
+    modelViewMatrix = mult(baseViewMatrix, clawMachine.lowerClaw3.resultMat);
     configureTexture(wood);
     drawComponent(clawMachine.lowerClaw3);
 
