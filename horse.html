@@ -40,6 +40,7 @@
         specularProduct;
         uniform vec4 lightPosition;
         uniform vec4 pointLightPosition;
+        uniform vec4 spotLightPosition;
         uniform float shininess;
         uniform bool isOn;
 
@@ -78,17 +79,26 @@
             vec3 H2 = normalize(L2 + E);
 
             float pointLight = dot(N, L2);
-            if (pointLight > 0.0) {
-                specular = pow(dot(N, H2), 20.0) + specular;
-            }
+            specular = pow(max(dot(N, H2), 0.0), shininess) + specular;
 
-            if (dot(L, N) * pointLight < 0.0) {
+            /*
+            * SPOT LIGHT
+            */
+            vec3 L3 = normalize(spotLightPosition.xyz - pos);
+            vec3 H3 = normalize(L3 + E);
+
+            float dotFromDirection = dot(L3, vec3(0, 0, 1));
+            float inLight = smoothstep(5.0, 10.0, dotFromDirection);
+            float spotLight = inLight * dot(N, L3);
+            specular = (inLight * pow(dot(N, H3), shininess)) + specular;
+
+            if ((Kd * pointLight * 2.0) < 0.0) {
                 specular = vec4(0.0, 0.0, 0.0, 1.0);
             }
 
             // Assigning
             gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-            fColor = ambient * 0.1 + ((pointLight + diffuse * 2.05) / 2.0) + specular;
+            fColor = ambient * 0.1 + (spotLight * 0.3) * (pointLight * 2.0) * (diffuse * 1.05) + specular;
             fColor.a = 1.0;
             fTexCoord = vTexCoord;
 
@@ -145,21 +155,39 @@
                     </canvas>
                 </div>
             </div>
-            <div class="row" style="margin-bottom: 40px;">
+            <div class="row" style="margin-bottom: 40px; margin-top: 20px;">
                 <div class="col-md" style="text-align: center;">
                     <button class="btn btn-default" id="demo" style="font-size: 24px; padding: 10px 20px; font-weight: bold;" disabled="disabled">
                         DEMO
                     </button>
-                </div>
-                <div class="col-md" style="text-align: center;">
                     <button class="btn btn-default" id="stop" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
                         STOP
                     </button>
                 </div>
                 <div class="col-md" style="text-align: center;">
                     <button class="btn btn-default" id="stop-l" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
-                        STOP LIGHTING
+                        STOP DIRECTIONAL<br>LIGHTING
                     </button>
+                </div>
+                <div class="col-lg">
+                    <h1>Point Light Control</h1>
+                    <div id="pointLightParam">
+                        <div>
+                            X -15
+                            <input id="pointLight-slider1" type="range" min="-15" max="15" step="1" value="0"/>
+                            X +15
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg">
+                    <h1>Spot Light Control</h1>
+                    <div id="spotLightParam">
+                        <div>
+                            X -15
+                            <input id="spotLight-slider1" type="range" min="-15" max="15" step="1" value="0"/>
+                            X +15
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -209,21 +237,18 @@
                     <h1>Block Man Control</h1>
                     <div id="blockParam">
                         <div>
-                            Head Angle Left 30 <input id="man-slider1" type="range"
-                            min="-30" max="30" step="1" value="0"
-                            />
+                            Head Angle Left 30
+                            <input id="man-slider1" type="range" min="-30" max="30" step="1" value="0"/>
                             Right 30
                         </div><br/>
                         <div>
-                            Walk Angle -15 <input id="man-slider2" type="range"
-                            min="-15" max="15" step="1" value="0"
-                            />
+                            Walk Angle -15
+                            <input id="man-slider2" type="range" min="-15" max="15" step="1" value="0"/>
                             15
                         </div><br/>
                         <div>
-                            Arm Angle -15 <input id="man-slider3" type="range"
-                            min="-15" max="15" step="1" value="0"
-                            />
+                            Arm Angle -15
+                            <input id="man-slider3" type="range" min="-15" max="15" step="1" value="0"/>
                             15
                         </div><br/>
                     </div>
@@ -262,8 +287,8 @@
                 <div class="col-lg row">
                     <form action="" autocomplete="off">
                         <h1>Free Camera Control</h1>
-                        <pre id="ctrl-cam-div1">Use <strong>&lt;i,j,k,m&gt;</strong> to control cam</pre>
-                        <pre id="ctrl-cam-div2">Use Claw control to control cam</pre>
+                        <pre id="ctrl-cam-div1">use <strong>&lt;i,j,k,m&gt;</strong> to control cam</pre>
+                        <pre id="ctrl-cam-div2">use claw control to control cam</pre>
                     </form>
                 </div>
             </div>

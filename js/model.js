@@ -37,7 +37,8 @@ var texSize = 64;
 
 var wireframe = document.getElementsByName('wireframe');
 
-var pointLightPosition = vec4(-6.0, 1.0, 0.0, 0.0);
+var pointLightPosition = vec4(-5.0, 1.0, 10.0, 0.0);
+var spotLightPosition = vec4(0.0, 0.0, 21.0, 0.0);
 
 var lightPosition = vec4(0.0, 0.0, 12.0, 0.0);
 var lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
@@ -57,7 +58,9 @@ var isForward;
 var isOn = 1;
 var isLightMove = true;
 var isFreeCam = true;
-var camx = 0; var camy = 0; var camz = 20;
+var camx = 0;
+var camy = 0;
+var camz = 20;
 
 var vertices = [
     vec4(-0.5, -0.5, 0.5, 1.0),
@@ -567,6 +570,8 @@ window.onload = function init() {
         flatten(lightPosition));
     gl.uniform4fv(gl.getUniformLocation(program, "pointLightPosition"),
         flatten(pointLightPosition));
+    gl.uniform4fv(gl.getUniformLocation(program, "pointLightPosition"),
+        flatten(spotLightPosition));
 
     gl.uniform1f(gl.getUniformLocation(program, "shininess"),
         materialShininess);
@@ -599,58 +604,58 @@ window.onload = function init() {
     }
 
     document.onkeydown = function(event) {
-        switch(event.key) {
+        switch (event.key) {
             case "i":
-				if(isFreeCam && camy < 20)
-					camy += 1;
+                if (isFreeCam && camy < 20)
+                    camy += 1;
                 break;
             case "k":
-				if(isFreeCam && camy > -20)
-					camy -= 1;
+                if (isFreeCam && camy > -20)
+                    camy -= 1;
                 break;
             case "j":
-				if(isFreeCam && camx > -20)
-					camx -= 1;
+                if (isFreeCam && camx > -20)
+                    camx -= 1;
                 break;
             case "l":
-				if(isFreeCam && camx < 20)
-					camx += 1;
+                if (isFreeCam && camx < 20)
+                    camx += 1;
                 break;
-		}
+        }
 
-		if (!demo) {
-			switch (event.key) {
-				case "Enter":
-					extend = 1;
-					break;
-				case "ArrowLeft":
-					vx = 1;
-					break;
-				case "ArrowRight":
-					vx = -1;
-					break;
-				case "ArrowUp":
-					vz = 1;
-					break;
-				case "ArrowDown":
-					vz = -1;
-					break;
-				case "q":
-					clawopen = 1;
-					break;
-				case "a":
-					basez = 1;
-					break;
-				case "d":
-					basez = -1;
-					break;
-				case "w":
-					basey = 1;
-					break;
-				case "s":
-					basey = -1;
-					break;
-			}
+        if (!demo) {
+            switch (event.key) {
+                case "Enter":
+                    extend = 1;
+                    break;
+                case "ArrowLeft":
+                    vx = 1;
+                    break;
+                case "ArrowRight":
+                    vx = -1;
+                    break;
+                case "ArrowUp":
+                    vz = 1;
+                    break;
+                case "ArrowDown":
+                    vz = -1;
+                    break;
+                case "q":
+                    clawopen = 1;
+                    break;
+                case "a":
+                    basez = 1;
+                    break;
+                case "d":
+                    basez = -1;
+                    break;
+                case "w":
+                    basey = 1;
+                    break;
+                case "s":
+                    basey = -1;
+                    break;
+            }
         }
     }
 
@@ -711,6 +716,12 @@ window.onload = function init() {
     document.getElementById("man-slider3").onchange = function(event) {
         gamma[2] = event.target.value;
     };
+    document.getElementById("pointLight-slider1").onchange = function(event) {
+        pointLightPosition[0] = event.target.value;
+    };
+    document.getElementById("spotLight-slider1").onchange = function(event) {
+        spotLightPosition[0] = event.target.value;
+    };
 
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
@@ -765,32 +776,36 @@ var display = function() {
     }
 
     gl.uniform1i(gl.getUniformLocation(program, "isOn"), isOn);
+    gl.uniform4fv(gl.getUniformLocation(program, "pointLightPosition"),
+        flatten(pointLightPosition));
+    gl.uniform4fv(gl.getUniformLocation(program, "spotLightPosition"),
+        flatten(spotLightPosition));
 
-	for (var i = 0, length = ctrlcam.length; i < length; i++) {
+    for (var i = 0, length = ctrlcam.length; i < length; i++) {
         if (ctrlcam[i].checked && ctrlcam[i].value == "free") {
             isFreeCam = true;
-			document.getElementById("ctrl-cam-div1").style.display = "block";
-			document.getElementById("ctrl-cam-div2").style.display = "none";
+            document.getElementById("ctrl-cam-div1").style.display = "block";
+            document.getElementById("ctrl-cam-div2").style.display = "none";
             break;
         } else if (ctrlcam[i].checked && ctrlcam[i].value == "crane") {
             isFreeCam = false;
-			document.getElementById("ctrl-cam-div1").style.display = "none";
-			document.getElementById("ctrl-cam-div2").style.display = "block";
+            document.getElementById("ctrl-cam-div1").style.display = "none";
+            document.getElementById("ctrl-cam-div2").style.display = "block";
             break;
         }
     }
 
-	if(isFreeCam){
-		projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
-		projectionMatrix = mult(projectionMatrix, lookAt(new vec3(camx, camy, camz), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+    if (isFreeCam) {
+        projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
+        projectionMatrix = mult(projectionMatrix, lookAt(new vec3(camx, camy, camz), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
-		gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
-	} else {
-		projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
-		projectionMatrix = mult(projectionMatrix, lookAt(new vec3(-clawData.posx, 7, clawData.posx+2), new vec3(0, -20, 0), new vec3(0.0, 1.0, 0.0)));
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+    } else {
+        projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
+        projectionMatrix = mult(projectionMatrix, lookAt(new vec3(-clawData.posx, 7, clawData.posx + 2), new vec3(0, -20, 0), new vec3(0.0, 1.0, 0.0)));
 
-		gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
-	}
+        gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+    }
 
 
     for (var i = 0, length = materials.length; i < length; i++) {
@@ -1164,6 +1179,9 @@ var renderModel = function() {
     modelViewMatrix = translate(pointLightPosition[0], pointLightPosition[1], pointLightPosition[2]);
     lightBox();
 
+    modelViewMatrix = translate(spotLightPosition[0], spotLightPosition[1], spotLightPosition[2]);
+    lightBox();
+
     var threshold = 15;
 
     if (stop == 0) {
@@ -1291,31 +1309,31 @@ var renderModel = function() {
 
     //Just a BLOCK
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(0, horse.base.height*3, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 90, 0) );
+    modelViewMatrix = mult(baseViewMatrix, translate(0, horse.base.height * 3, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 90, 0));
     configureTexture(wood);
     block();
 
     //Just a BLOCK
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, -horse.base.height*5, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 90, 0) );
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width / 2, -horse.base.height * 5, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 90, 0));
     configureTexture(wood);
     block();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, -horse.base.height*5, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 90, 0) );
+    modelViewMatrix = mult(baseViewMatrix, translate(-horse.base.width / 2, -horse.base.height * 5, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 90, 0));
     configureTexture(wood);
     block();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(-2, -horse.base.height*4.25, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 90, 90, 0) );
+    modelViewMatrix = mult(baseViewMatrix, translate(-2, -horse.base.height * 4.25, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 90, 90, 0));
     configureTexture(wood);
     lowerArm();
 
     //Blockman
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, horse.base.height*1.5, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180 - headTilt, 0, 90, 0) );
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width * 1.5, horse.base.height * 1.5, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180 - headTilt, 0, 90, 0));
     configureTexture(wood);
     block();
 
@@ -1324,23 +1342,23 @@ var renderModel = function() {
     configureTexture(wood);
     blockmanBody();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+0.5, horse.base.height, horse.base.width/1.5));
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width + 0.5, horse.base.height, horse.base.width / 1.5));
     modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 - x / 60 + gamma[2] / 60, 1));
     configureTexture(stone);
     blockmanArm();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+4.5, horse.base.height, horse.base.width/1.5));
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width + 4.5, horse.base.height, horse.base.width / 1.5));
     modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x / 60 - gamma[2] / 60, 1));
     configureTexture(stone);
     blockmanArm();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+2, horse.base.height-7, horse.base.width/1.5));
-    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x/2 / 60 - gamma[1] / 60, 1));
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width + 2, horse.base.height - 7, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x / 2 / 60 - gamma[1] / 60, 1));
     configureTexture(wood);
     blockmanArm();
 
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width+3.5, horse.base.height-7, horse.base.width/1.5));
-    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 - x/2 / 60 + gamma[1] / 60, 1));
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width + 3.5, horse.base.height - 7, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 - x / 2 / 60 + gamma[1] / 60, 1));
     configureTexture(wood);
     blockmanArm();
 
