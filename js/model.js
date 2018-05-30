@@ -23,6 +23,12 @@ wood.src = "./img/wood.png"
 var black = new Image();
 black.src = "./img/black.jpg"
 
+var brick = new Image();
+brick.src = "./img/brick_base.png"
+
+var light_icon = new Image();
+light_icon.src = "./img/light_icon.png"
+
 var points = [];
 var colors = [];
 var normals = [];
@@ -450,6 +456,19 @@ window.onload = function init() {
         alert("WebGL isn't available");
     }
 
+    console.log('WebGL version: ', gl.getParameter(gl.VERSION));
+    console.log('WebGL vendor : ', gl.getParameter(gl.VENDOR));
+    console.log('WebGL supported extensions: ', gl.getSupportedExtensions());
+
+    var depth_texture_extension = gl.getExtension('WEBGL_depth_texture');
+    if (!depth_texture_extension) {
+        console.log('This WebGL program requires the use of the ' +
+            'WEBGL_depth_texture extension. This extension is not supported ' +
+            'by your browser, so this WEBGL program is terminating.');
+    } else {
+        console.log('FUCK YEAH');
+    }
+
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -464,7 +483,7 @@ window.onload = function init() {
     }
 
     // Initialize framebuffer object (FBO)
-    fbo = initFramebufferObject(gl);
+    fbo = _createFrameBufferObject(gl, 512, 512);
     if (!fbo) {
         console.log('Failed to initialize frame buffer object');
         return;
@@ -541,8 +560,8 @@ window.onload = function init() {
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
         flatten(lightPosition));
 
-    gl.uniform1f(gl.getUniformLocation(program,
-        "shininess"), materialShininess);
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"),
+        materialShininess);
 
     texture = gl.createTexture();
 
@@ -750,8 +769,8 @@ var display = function() {
                 flatten(specularProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
                 flatten(lightPosition));
-            gl.uniform1f(gl.getUniformLocation(program,
-                "shininess"), materialShininess);
+            gl.uniform1f(gl.getUniformLocation(program, "shininess"),
+                materialShininess);
             break;
         } else if (materials[i].checked && materials[i].value == "metallic") {
             materialAmbient = vec4(0.3, 0.5, 0.9, 1.0);
@@ -769,8 +788,8 @@ var display = function() {
                 flatten(specularProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
                 flatten(lightPosition));
-            gl.uniform1f(gl.getUniformLocation(program,
-                "shininess"), materialShininess);
+            gl.uniform1f(gl.getUniformLocation(program, "shininess"),
+                materialShininess);
             break;
         }
     }
@@ -809,16 +828,16 @@ function drawComponent(comp) {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
@@ -847,16 +866,16 @@ function base() {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
@@ -885,16 +904,16 @@ function block() {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
@@ -923,16 +942,16 @@ function upperArm() {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
@@ -1037,16 +1056,16 @@ function lowerArm() {
         g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
 
-        configureTexture(black);
-        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        for (var i = 0, length = wireframe.length; i < length; i++) {
-            if (wireframe[i].checked && wireframe[i].value == "on") {
-                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-            }
-            if (wireframe[i].checked && wireframe[i].value == "off") {
-                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-            }
-        }
+        // configureTexture(black);
+        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        // for (var i = 0, length = wireframe.length; i < length; i++) {
+        //     if (wireframe[i].checked && wireframe[i].value == "on") {
+        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+        //     }
+        //     if (wireframe[i].checked && wireframe[i].value == "off") {
+        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+        //     }
+        // }
     }
 }
 
@@ -1067,14 +1086,14 @@ function walls() {
 //--------------------------------------------------------------------------
 
 function lightBox() {
-    var s = scale4(1.0, 1.0, 1.0);
+    var s = scale4(0.5, 0.5, 0.0001);
     var instanceMatrix = mult(translate(lightPosition[0], lightPosition[1], lightPosition[2]), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
-    g_normalMatrix = inverse(t);
-    g_normalMatrix = transpose(g_normalMatrix);
-    gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
+    // g_normalMatrix = inverse(t);
+    // g_normalMatrix = transpose(g_normalMatrix);
+    // gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
     gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
@@ -1083,7 +1102,7 @@ function lightBox() {
 var renderModel = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    modelViewMatrix = translate(0, 0, 0);
+    modelViewMatrix = translate(0, 0, -1);
     configureTexture(wood);
     lightBox();
 
@@ -1170,11 +1189,6 @@ var renderModel = function() {
     modelViewMatrix = mult(modelViewMatrix, rotate(x - 15, +90, 0, 1));
     configureTexture(wood);
     lowerArm();
-
-    modelViewMatrix = mult(wallviewMatrix, translate(0, -wall.base.height, -10));
-    modelViewMatrix = mult(modelViewMatrix, rotate(90, 0, 90, 0));
-    configureTexture(stone);
-    walls();
 
     modelViewMatrix = translate(0, 0, 0);
     var wallviewMatrix = rotate(0, 0, 1, 0);
@@ -1347,7 +1361,67 @@ var renderModel = function() {
     configureTexture(wood);
     drawComponent(clawMachine.lowerClaw3);
 
+
+    modelViewMatrix = mult(wallviewMatrix, translate(0, -wall.base.height, -8));
+    modelViewMatrix = mult(modelViewMatrix, rotate(90, 0, 90, 0));
+    configureTexture(brick);
+    walls();
+
 };
+
+/** ---------------------------------------------------------------------
+ * Create a frame buffer for rendering into texture objects.
+ * @param gl WebGLRenderingContext
+ * @param width Number The width (in pixels) of the rendering (must be power of 2)
+ * @param height Number The height (in pixels) of the rendering (must be power of 2)
+ * @returns WebGLFramebuffer object
+ */
+function _createFrameBufferObject(gl, width, height) {
+    var frame_buffer, color_buffer, depth_buffer, status;
+
+    // Step 1: Create a frame buffer object
+    frame_buffer = gl.createFramebuffer();
+
+    // Step 2: Create and initialize a texture buffer to hold the colors.
+    color_buffer = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, color_buffer);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0,
+        gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // Step 3: Create and initialize a texture buffer to hold the depth values.
+    // Note: the WEBGL_depth_texture extension is required for this to work
+    //       and for the gl.DEPTH_COMPONENT texture format to be supported.
+    depth_buffer = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, depth_buffer);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT, width, height, 0,
+        gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // Step 4: Attach the specific buffers to the frame buffer.
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frame_buffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, color_buffer, 0);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depth_buffer, 0);
+
+    // Step 5: Verify that the frame buffer is valid.
+    status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        console.log("The created frame buffer is invalid: " + status.toString());
+    }
+
+    // Unbind these new objects, which makes the default frame buffer the
+    // target for rendering.
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    return frame_buffer;
+}
 
 function initFramebufferObject(gl) {
     var framebuffer, texture, depthBuffer;
