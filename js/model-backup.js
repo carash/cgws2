@@ -22,18 +22,18 @@ asuka.src = "./img/asuka.png"
 
 var points = [];
 var colors = [];
-var normals =[];
+var normals = [];
 var numChecks = 32;
 var texSize = 64;
 
-var lightPosition = vec4(0.0, 0.0, 12.0, 0.0 );
-var lightAmbient = vec4(0.3, 0.3, 0.3, 1.0 );
-var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
-var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+var lightPosition = vec4(0.0, 0.0, 12.0, 0.0);
+var lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
+var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
 
-var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0);
-var materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+var materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+var materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
 var materialShininess = 100.0;
 
 var ctm;
@@ -45,14 +45,14 @@ var isOn = 1;
 var isLightMove = true;
 
 var vertices = [
-    vec4( -0.5, -0.5,  0.5, 1.0 ),
-    vec4( -0.5,  0.5,  0.5, 1.0 ),
-    vec4(  0.5,  0.5,  0.5, 1.0 ),
-    vec4(  0.5, -0.5,  0.5, 1.0 ),
-    vec4( -0.5, -0.5, -0.5, 1.0 ),
-    vec4( -0.5,  0.5, -0.5, 1.0 ),
-    vec4(  0.5,  0.5, -0.5, 1.0 ),
-    vec4(  0.5, -0.5, -0.5, 1.0 )
+    vec4(-0.5, -0.5, 0.5, 1.0),
+    vec4(-0.5, 0.5, 0.5, 1.0),
+    vec4(0.5, 0.5, 0.5, 1.0),
+    vec4(0.5, -0.5, 0.5, 1.0),
+    vec4(-0.5, -0.5, -0.5, 1.0),
+    vec4(-0.5, 0.5, -0.5, 1.0),
+    vec4(0.5, 0.5, -0.5, 1.0),
+    vec4(0.5, -0.5, -0.5, 1.0)
 ];
 
 var texCoordsArray = [];
@@ -66,94 +66,95 @@ var texCoord = [
 
 // RGBA colors
 var vertexColors = [
-    vec4( 1.0, 1.0, 1.0, 1.0 ),  // black
-    vec4( 1.0, 1.0, 1.0, 1.0 ),  // red
-    vec4( 1.0, 1.0, 1.0, 1.0 ),  // yellow
-    vec4( 1.0, 1.0, 1.0, 1.0 ),  // green
-    vec4( 1.0, 1.0, 1.0, 1.0 ),  // blue
-    vec4( 1.0, 1.0, 1.0, 1.0 ),  // magenta
-    vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
-    vec4( 1.0, 1.0, 1.0, 1.0 )   // cyan
+    vec4(1.0, 1.0, 1.0, 1.0), // black
+    vec4(1.0, 1.0, 1.0, 1.0), // red
+    vec4(1.0, 1.0, 1.0, 1.0), // yellow
+    vec4(1.0, 1.0, 1.0, 1.0), // green
+    vec4(1.0, 1.0, 1.0, 1.0), // blue
+    vec4(1.0, 1.0, 1.0, 1.0), // magenta
+    vec4(1.0, 1.0, 1.0, 1.0), // white
+    vec4(1.0, 1.0, 1.0, 1.0) // cyan
 ];
 
 // Create a checkerboard pattern using floats
 
 
 var image1 = new Array()
-    for (var i =0; i<texSize; i++)  image1[i] = new Array();
-    for (var i =0; i<texSize; i++)
-        for ( var j = 0; j < texSize; j++)
-           image1[i][j] = new Float32Array(4);
-    for (var i =0; i<texSize; i++) for (var j=0; j<texSize; j++) {
-        var c = (((i & 0x8) == 0) ^ ((j & 0x8)  == 0));
+for (var i = 0; i < texSize; i++) image1[i] = new Array();
+for (var i = 0; i < texSize; i++)
+    for (var j = 0; j < texSize; j++)
+        image1[i][j] = new Float32Array(4);
+for (var i = 0; i < texSize; i++)
+    for (var j = 0; j < texSize; j++) {
+        var c = (((i & 0x8) == 0) ^ ((j & 0x8) == 0));
         image1[i][j] = [c, c, c, 1];
     }
 
-    // Convert floats to ubytes for texture
+// Convert floats to ubytes for texture
 
-var image2 = new Uint8Array(4*texSize*texSize);
+var image2 = new Uint8Array(4 * texSize * texSize);
 
-    for ( var i = 0; i < texSize; i++ )
-        for ( var j = 0; j < texSize; j++ )
-           for(var k =0; k<4; k++)
-                image2[4*texSize*i+4*j+k] = 255*image1[i][j][k];
+for (var i = 0; i < texSize; i++)
+    for (var j = 0; j < texSize; j++)
+        for (var k = 0; k < 4; k++)
+            image2[4 * texSize * i + 4 * j + k] = 255 * image1[i][j][k];
 
-var image3 = new Uint8Array(4*texSize*texSize);
+var image3 = new Uint8Array(4 * texSize * texSize);
 
-    for ( var i = 0; i < texSize; i++ ) {
-        for ( var j = 0; j <texSize; j++ ) {
-            var patchx = Math.floor(i/(texSize/numChecks));
-            if(patchx%2) c = 255;
-            else c = 0;
-            image3[4*i*texSize+4*j] = c;
-            image3[4*i*texSize+4*j+1] = c;
-            image3[4*i*texSize+4*j+2] = c;
-            image3[4*i*texSize+4*j+3] = 255;
-        }
+for (var i = 0; i < texSize; i++) {
+    for (var j = 0; j < texSize; j++) {
+        var patchx = Math.floor(i / (texSize / numChecks));
+        if (patchx % 2) c = 255;
+        else c = 0;
+        image3[4 * i * texSize + 4 * j] = c;
+        image3[4 * i * texSize + 4 * j + 1] = c;
+        image3[4 * i * texSize + 4 * j + 2] = c;
+        image3[4 * i * texSize + 4 * j + 3] = 255;
     }
+}
 
-var image4 = new Uint8Array(4*texSize*texSize);
+var image4 = new Uint8Array(4 * texSize * texSize);
 
-    // Create a checkerboard pattern
-    for ( var i = 0; i < texSize; i++ ) {
-        for ( var j = 0; j <texSize; j++ ) {
-            var patchy = Math.floor(j/(texSize/numChecks));
-            if(patchy%2) c = 255;
-            else c = 0;
-            image4[4*i*texSize+4*j] = c;
-            image4[4*i*texSize+4*j+1] = c;
-            image4[4*i*texSize+4*j+2] = c;
-            image4[4*i*texSize+4*j+3] = 255;
-           }
+// Create a checkerboard pattern
+for (var i = 0; i < texSize; i++) {
+    for (var j = 0; j < texSize; j++) {
+        var patchy = Math.floor(j / (texSize / numChecks));
+        if (patchy % 2) c = 255;
+        else c = 0;
+        image4[4 * i * texSize + 4 * j] = c;
+        image4[4 * i * texSize + 4 * j + 1] = c;
+        image4[4 * i * texSize + 4 * j + 2] = c;
+        image4[4 * i * texSize + 4 * j + 3] = 255;
     }
+}
 
-var image5 = new Uint8Array(4*texSize*texSize);
+var image5 = new Uint8Array(4 * texSize * texSize);
 
-    for ( var i = 0; i < texSize; i++ ) {
-        for ( var j = 0; j <texSize; j++ ) {
-            var patchx = Math.floor(i/(texSize/numChecks));
-            var patchy = Math.floor(j/(texSize/numChecks));
-            if(patchx%2 ^ patchy%2) c = 255;
-            else c = 0;
-            //c = 255*(((i & 0x8) == 0) ^ ((j & 0x8)  == 0))
-            image5[4*i*texSize+4*j] = c;
-            image5[4*i*texSize+4*j+1] = c;
-            image5[4*i*texSize+4*j+2] = c;
-            image5[4*i*texSize+4*j+3] = 255;
-        }
+for (var i = 0; i < texSize; i++) {
+    for (var j = 0; j < texSize; j++) {
+        var patchx = Math.floor(i / (texSize / numChecks));
+        var patchy = Math.floor(j / (texSize / numChecks));
+        if (patchx % 2 ^ patchy % 2) c = 255;
+        else c = 0;
+        //c = 255*(((i & 0x8) == 0) ^ ((j & 0x8)  == 0))
+        image5[4 * i * texSize + 4 * j] = c;
+        image5[4 * i * texSize + 4 * j + 1] = c;
+        image5[4 * i * texSize + 4 * j + 2] = c;
+        image5[4 * i * texSize + 4 * j + 3] = 255;
     }
+}
 
-var image6 = new Uint8Array(4*texSize*texSize);
+var image6 = new Uint8Array(4 * texSize * texSize);
 
-    // Create a checkerboard pattern
-    for ( var i = 0; i < texSize; i++ ) {
-        for ( var j = 0; j <texSize; j++ ) {
-            image6[4*i*texSize+4*j] = 127+127*Math.sin(0.1*i*j);
-            image6[4*i*texSize+4*j+1] = 127+127*Math.sin(0.1*i*j);
-            image6[4*i*texSize+4*j+2] = 127+127*Math.sin(0.1*i*j);
-            image6[4*i*texSize+4*j+3] = 255;
-           }
+// Create a checkerboard pattern
+for (var i = 0; i < texSize; i++) {
+    for (var j = 0; j < texSize; j++) {
+        image6[4 * i * texSize + 4 * j] = 127 + 127 * Math.sin(0.1 * i * j);
+        image6[4 * i * texSize + 4 * j + 1] = 127 + 127 * Math.sin(0.1 * i * j);
+        image6[4 * i * texSize + 4 * j + 2] = 127 + 127 * Math.sin(0.1 * i * j);
+        image6[4 * i * texSize + 4 * j + 3] = 255;
     }
+}
 
 var horse = {
     render: renderHorse,
@@ -285,14 +286,14 @@ clawMachine.lowerClaw3 = {
 
 // Parameters controlling the size of the Robot's arm
 
-var BASE_HEIGHT      = 3.0;
-var BASE_WIDTH       = 10.0;
+var BASE_HEIGHT = 3.0;
+var BASE_WIDTH = 10.0;
 var LOWER_ARM_HEIGHT = 7.0;
-var LOWER_ARM_WIDTH  = 0.8;
+var LOWER_ARM_WIDTH = 0.8;
 var UPPER_ARM_HEIGHT = 3.0;
-var UPPER_ARM_WIDTH  = 1;
-var WALL_WIDTH  = 1.0;
-var WALL_HEIGHT  = 40.0;
+var UPPER_ARM_WIDTH = 1;
+var WALL_WIDTH = 1.0;
+var WALL_HEIGHT = 40.0;
 
 // Shader transformation matrices
 
@@ -306,9 +307,9 @@ var LowerArm = 1;
 var UpperArm = 2;
 
 
-var theta= [ 0, 0, 0];
+var theta = [0, 0, 0];
 var anim = 0;
-var animSign=1;
+var animSign = 1;
 var stop = 0;
 var demo = true;
 
@@ -323,27 +324,28 @@ var vBuffer, cBuffer;
 //----------------------------------------------------------------------------
 
 function requestCORSIfNotSameOrigin(img, url) {
-   if ((new URL(url)).origin !== window.location.origin) {
-     img.crossOrigin = "";
-   }
- }
+    if ((new URL(url)).origin !== window.location.origin) {
+        img.crossOrigin = "";
+    }
+}
 
 //----------------------------------------------------------------------------
 
 var texture;
+
 function configureTexture(image) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     requestCORSIfNotSameOrigin(image, image.src);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB,gl.UNSIGNED_BYTE, image);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
     gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
-                      gl.NEAREST_MIPMAP_LINEAR );
-    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+        gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 }
 //----------------------------------------------------------------------------
 
-function quad(  a,  b,  c,  d ) {
+function quad(a, b, c, d) {
     var t1 = subtract(vertices[b], vertices[a]);
     var t2 = subtract(vertices[c], vertices[b]);
     var normal = cross(t1, t2);
@@ -381,12 +383,12 @@ function quad(  a,  b,  c,  d ) {
 
 
 function colorCube() {
-    quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
-    quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
+    quad(1, 0, 3, 2);
+    quad(2, 3, 7, 6);
+    quad(3, 0, 4, 7);
+    quad(6, 5, 1, 2);
+    quad(4, 5, 6, 7);
+    quad(5, 4, 0, 1);
 }
 
 //____________________________________________
@@ -423,44 +425,46 @@ var clawopen = 0;
 
 window.onload = function init() {
 
-    canvas = document.getElementById( "gl-canvas" );
+    canvas = document.getElementById("gl-canvas");
 
-   gl = WebGLUtils.setupWebGL( canvas );
-   if ( !gl ) { alert( "WebGL isn't available" ); }
+    gl = WebGLUtils.setupWebGL(canvas);
+    if (!gl) {
+        alert("WebGL isn't available");
+    }
 
-   gl.viewport( 0, 0, canvas.width, canvas.height );
+    gl.viewport(0, 0, canvas.width, canvas.height);
 
-    gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
-    gl.enable( gl.DEPTH_TEST );	
-	
-	shadowProgram = initShaders( gl, "shadow-vertex-shader", "shadow-fragment-shader" );
-	shadowProgram.a_Position = gl.getAttribLocation(shadowProgram, 'a_Position');
-	shadowProgram.u_MvpMatrix = gl.getUniformLocation(shadowProgram, 'u_MvpMatrix');
-	if (shadowProgram.a_Position < 0 || !shadowProgram.u_MvpMatrix) {
-		console.log('Failed to get the storage location of attribute or uniform variable from shadowProgram'); 
-		return;
-	}
-	
-	  // Initialize framebuffer object (FBO)  
-	fbo = initFramebufferObject(gl);
-	if (!fbo) {
-		console.log('Failed to initialize frame buffer object');
-		return;
-	}
-	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
-	gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
-	
-	
-	viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
-	viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
-	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
-	
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.enable(gl.DEPTH_TEST);
+
+    shadowProgram = initShaders(gl, "shadow-vertex-shader", "shadow-fragment-shader");
+    shadowProgram.a_Position = gl.getAttribLocation(shadowProgram, 'a_Position');
+    shadowProgram.u_MvpMatrix = gl.getUniformLocation(shadowProgram, 'u_MvpMatrix');
+    if (shadowProgram.a_Position < 0 || !shadowProgram.u_MvpMatrix) {
+        console.log('Failed to get the storage location of attribute or uniform variable from shadowProgram');
+        return;
+    }
+
+    // Initialize framebuffer object (FBO)
+    fbo = initFramebufferObject(gl);
+    if (!fbo) {
+        console.log('Failed to initialize frame buffer object');
+        return;
+    }
+    gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+    gl.bindTexture(gl.TEXTURE_2D, fbo.texture);
+
+
+    viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
+    viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
+    viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+
     //
     //  Load shaders and initialize attribute buffers
     //
-    program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
 
-    gl.useProgram( program );
+    gl.useProgram(program);
 
     colorCube();
 
@@ -468,60 +472,60 @@ window.onload = function init() {
 
     // normals
     var nBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
+    gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW);
 
-    var vNormal = gl.getAttribLocation( program, "vNormal" );
-    gl.vertexAttribPointer( vNormal, 3, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vNormal );
+    var vNormal = gl.getAttribLocation(program, "vNormal");
+    gl.vertexAttribPointer(vNormal, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vNormal);
 
     //colors
     cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
+    var vColor = gl.getAttribLocation(program, "vColor");
+    gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vColor);
 
     // positions
     vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);
 
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+    var vPosition = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPosition);
 
     //textures
     var tBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, tBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW );
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
 
-    var vTexCoord = gl.getAttribLocation( program, "vTexCoord");
+    var vTexCoord = gl.getAttribLocation(program, "vTexCoord");
     gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vTexCoord);
 
 
     // shades
-    viewerPos = vec3(0.0, 0.0, -20.0 );
+    viewerPos = vec3(0.0, 0.0, -20.0);
 
     var ambientProduct = mult(lightAmbient, materialAmbient);
     var diffuseProduct = mult(lightDiffuse, materialDiffuse);
     var specularProduct = mult(lightSpecular, materialSpecular);
 
     gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
-    flatten(ambientProduct));
+        flatten(ambientProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
-    flatten(diffuseProduct) );
+        flatten(diffuseProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
-    flatten(specularProduct) );
+        flatten(specularProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
-    flatten(lightPosition) );
+        flatten(lightPosition));
 
     gl.uniform1f(gl.getUniformLocation(program,
-        "shininess"),materialShininess);
-		
+        "shininess"), materialShininess);
+
     texture = gl.createTexture();
 
     document.getElementById("stop").onclick = function(event) {
@@ -544,44 +548,44 @@ window.onload = function init() {
         document.getElementById("stop").disabled = false;
         document.getElementById("demo").disabled = true;
     }
-	
-	document.getElementById("stop-l").onclick = function(event) {
-		isLightMove = !isLightMove;
-	}
+
+    document.getElementById("stop-l").onclick = function(event) {
+        isLightMove = !isLightMove;
+    }
 
     document.onkeydown = function(event) {
         if (demo) return;
         switch (event.key) {
             case "Enter":
-            extend = 1;
-            break;
+                extend = 1;
+                break;
             case "ArrowLeft":
-            vx = 1;
-            break;
+                vx = 1;
+                break;
             case "ArrowRight":
-            vx = -1;
-            break;
+                vx = -1;
+                break;
             case "ArrowUp":
-            vz = 1;
-            break;
+                vz = 1;
+                break;
             case "ArrowDown":
-            vz = -1;
-            break;
+                vz = -1;
+                break;
             case " ":
-            clawopen = 1;
-            break;
+                clawopen = 1;
+                break;
             case "a":
-            basez = 1;
-            break;
+                basez = 1;
+                break;
             case "d":
-            basez = -1;
-            break;
+                basez = -1;
+                break;
             case "w":
-            basey = 1;
-            break;
+                basey = 1;
+                break;
             case "s":
-            basey = -1;
-            break;
+                basey = -1;
+                break;
         }
     }
 
@@ -589,35 +593,35 @@ window.onload = function init() {
         if (demo) return;
         switch (event.key) {
             case "Enter":
-            extend = -1;
-            break;
+                extend = -1;
+                break;
             case "ArrowLeft":
-            vx = 0;
-            break;
+                vx = 0;
+                break;
             case "ArrowRight":
-            vx = 0;
-            break;
+                vx = 0;
+                break;
             case "ArrowUp":
-            vz = 0;
-            break;
+                vz = 0;
+                break;
             case "ArrowDown":
-            vz = 0;
-            break;
+                vz = 0;
+                break;
             case " ":
-            clawopen = -1;
-            break;
+                clawopen = -1;
+                break;
             case "a":
-            basez = 0;
-            break;
+                basez = 0;
+                break;
             case "d":
-            basez = 0;
-            break;
+                basez = 0;
+                break;
             case "w":
-            basey = 0;
-            break;
+                basey = 0;
+                break;
             case "s":
-            basey = 0;
-            break;
+                basey = 0;
+                break;
         }
     }
 
@@ -628,50 +632,50 @@ window.onload = function init() {
         theta[1] = event.target.value;
     };
     document.getElementById("slider3").onchange = function(event) {
-        theta[2] =  event.target.value;
+        theta[2] = event.target.value;
     };
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     normalMatrix = gl.getUniformLocation(program, "normalMatrix");
 
     projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
-	projectionMatrix = mult(projectionMatrix, lookAt(new vec3(0, 0, 20), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
-	
-    gl.uniformMatrix4fv( gl.getUniformLocation(program, "projectionMatrix"),  false, flatten(projectionMatrix) );
-	
-	mvpMatrixFromLight = gl.getUniformLocation(program, 'u_MvpMatrixFromLight');
-	shadowMap = gl.getUniformLocation(program, 'u_ShadowMap');
+    projectionMatrix = mult(projectionMatrix, lookAt(new vec3(0, 0, 20), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
+
+    mvpMatrixFromLight = gl.getUniformLocation(program, 'u_MvpMatrixFromLight');
+    shadowMap = gl.getUniformLocation(program, 'u_ShadowMap');
 
     display();
 }
 
-var display = function () {
+var display = function() {
     requestAnimFrame(display);
     var radios = document.getElementsByName('radio');
     var materials = document.getElementsByName('material');
     var onLight = document.getElementsByName('onLight');
 
-	if(isLightMove) {
-		if(isForward) {
-			lightPosition[0] += 0.1;
-			lightPosition[1] += 0.1;
-		} else {
-			lightPosition[0] -= 0.1;
-			lightPosition[1] -= 0.1;
-		}
+    if (isLightMove) {
+        if (isForward) {
+            lightPosition[0] += 0.1;
+            lightPosition[1] += 0.1;
+        } else {
+            lightPosition[0] -= 0.1;
+            lightPosition[1] -= 0.1;
+        }
 
-		if(lightPosition[1] > 15 || lightPosition[1] < -15) {
-			isForward = !isForward;
-		}
-	}
+        if (lightPosition[1] > 15 || lightPosition[1] < -15) {
+            isForward = !isForward;
+        }
+    }
 
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
-    flatten(lightPosition) );
-	
-	viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
-	viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+        flatten(lightPosition));
 
-	for (var i = 0, length = onLight.length; i < length; i++) {
+    viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
+    viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
+
+    for (var i = 0, length = onLight.length; i < length; i++) {
         if (onLight[i].checked && onLight[i].value == "on") {
             isOn = 1;
             break;
@@ -686,70 +690,68 @@ var display = function () {
     for (var i = 0, length = materials.length; i < length; i++) {
         if (materials[i].checked && materials[i].value == "gloss") {
             // do whatever you want with the checked radio
-            materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-            materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0);
-            materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+            materialAmbient = vec4(1.0, 0.0, 1.0, 1.0);
+            materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+            materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
             materialShininess = 100.0;
             var ambientProduct = mult(lightAmbient, materialAmbient);
             var diffuseProduct = mult(lightDiffuse, materialDiffuse);
             var specularProduct = mult(lightSpecular, materialSpecular);
             gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
-            flatten(ambientProduct));
+                flatten(ambientProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
-            flatten(diffuseProduct) );
+                flatten(diffuseProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
-            flatten(specularProduct) );
+                flatten(specularProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
-            flatten(lightPosition) );
+                flatten(lightPosition));
             gl.uniform1f(gl.getUniformLocation(program,
-                "shininess"),materialShininess);
+                "shininess"), materialShininess);
             // only one radio can be logically checked, don't check the rest
             break;
         } else if (materials[i].checked && materials[i].value == "matte") {
-            materialAmbient = vec4( 0.5, 0.5, 0.5, 1.0 );
-            materialDiffuse = vec4( 0.3, 0.4, 0.5, 1.0);
-            materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+            materialAmbient = vec4(0.5, 0.5, 0.5, 1.0);
+            materialDiffuse = vec4(0.3, 0.4, 0.5, 1.0);
+            materialSpecular = vec4(1.0, 0.8, 0.0, 1.0);
             materialShininess = 250.0;
             var ambientProduct = mult(lightAmbient, materialAmbient);
             var diffuseProduct = mult(lightDiffuse, materialDiffuse);
             var specularProduct = mult(lightSpecular, materialSpecular);
             gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
-            flatten(ambientProduct));
+                flatten(ambientProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
-            flatten(diffuseProduct) );
+                flatten(diffuseProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
-            flatten(specularProduct) );
+                flatten(specularProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
-            flatten(lightPosition) );
+                flatten(lightPosition));
             gl.uniform1f(gl.getUniformLocation(program,
-                "shininess"),materialShininess);
+                "shininess"), materialShininess);
             break;
-        }
-
-         else if (materials[i].checked && materials[i].value == "metallic") {
-            materialAmbient = vec4( 0.3, 0.5, 0.9, 1.0 );
-            materialDiffuse = vec4( 0.5, 0.6, 0.7, 7.0);
-            materialSpecular = vec4( 0.2, 0.2, 0.0, 1.0 );
+        } else if (materials[i].checked && materials[i].value == "metallic") {
+            materialAmbient = vec4(0.3, 0.5, 0.9, 1.0);
+            materialDiffuse = vec4(0.5, 0.6, 0.7, 7.0);
+            materialSpecular = vec4(0.2, 0.2, 0.0, 1.0);
             materialShininess = 50.0;
             var ambientProduct = mult(lightAmbient, materialAmbient);
             var diffuseProduct = mult(lightDiffuse, materialDiffuse);
             var specularProduct = mult(lightSpecular, materialSpecular);
             gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
-            flatten(ambientProduct));
+                flatten(ambientProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
-            flatten(diffuseProduct) );
+                flatten(diffuseProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
-            flatten(specularProduct) );
+                flatten(specularProduct));
             gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
-            flatten(lightPosition) );
+                flatten(lightPosition));
             gl.uniform1f(gl.getUniformLocation(program,
-                "shininess"),materialShininess);
+                "shininess"), materialShininess);
             break;
         }
     }
-	
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
     for (var i = 0, length = radios.length; i < length; i++) {
         if (radios[i].checked && radios[i].value == "horse") {
             // do whatever you want with the checked radio
@@ -771,31 +773,31 @@ var display = function () {
 
 //------------------------------------------------------------------------------
 
-var g_normalMatrix = new mat4();  // Coordinate transformation matrix for normals
-var g_mvpMatrixFromLight = new mat4();  // MVP from light
+var g_normalMatrix = new mat4(); // Coordinate transformation matrix for normals
+var g_mvpMatrixFromLight = new mat4(); // MVP from light
 
 function drawComponent(comp) {
     var s = scale4(comp.width, comp.height, comp.width);
     var instanceMatrix = mult(translate(0.0, 0.5 * comp.height, 0.0), s);
 
     var t = mult(modelViewMatrix, instanceMatrix);
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
     gl.viewport(0, 0, 512, 512); // Set view port for FBO
-	
-	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-	gl.useProgram(shadowProgram);
-	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+    gl.useProgram(shadowProgram);
+    gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
-	gl.useProgram(program);
-	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shadowMap, fbo.texture);
+    gl.useProgram(program);
+    gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
-	
+
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
@@ -807,30 +809,30 @@ function drawComponent(comp) {
 
 function base() {
     var s = scale4(BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH);
-    var instanceMatrix = mult( translate( 0.0, 0.5 * BASE_HEIGHT, 0.0 ), s);
+    var instanceMatrix = mult(translate(0.0, 0.5 * BASE_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
     gl.viewport(0, 0, 512, 512); // Set view port for FBO
-	
-	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-	gl.useProgram(shadowProgram);
-	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+    gl.useProgram(shadowProgram);
+    gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
-	gl.useProgram(program);
-	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shadowMap, fbo.texture);
+    gl.useProgram(program);
+    gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
-	
-    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
 //------------------------------------------------------------------------------
@@ -838,94 +840,92 @@ function base() {
 
 function upperArm() {
     var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
-    var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
+    var instanceMatrix = mult(translate(0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
     gl.viewport(0, 0, 512, 512); // Set view port for FBO
-	
-	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-	gl.useProgram(shadowProgram);
-	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+    gl.useProgram(shadowProgram);
+    gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
-	gl.useProgram(program);
-	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shadowMap, fbo.texture);
+    gl.useProgram(program);
+    gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
-	
-    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
 //----------------------------------------------------------------------------
 
 
-function lowerArm()
-{
+function lowerArm() {
     var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
+    var instanceMatrix = mult(translate(0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
     gl.viewport(0, 0, 512, 512); // Set view port for FBO
-	
-	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-	gl.useProgram(shadowProgram);
-	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+    gl.useProgram(shadowProgram);
+    gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
-	gl.useProgram(program);
-	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shadowMap, fbo.texture);
+    gl.useProgram(program);
+    gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
-	
-    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
 //----------------------------------------------------------------------------
 
 
-function walls()
-{
+function walls() {
     var s = scale4(WALL_WIDTH, WALL_HEIGHT, WALL_HEIGHT);
-    var instanceMatrix = mult( translate( 0.0, 0.5 * WALL_HEIGHT, 0.0 ), s);
+    var instanceMatrix = mult(translate(0.0, 0.5 * WALL_HEIGHT, 0.0), s);
     var t = mult(modelViewMatrix, instanceMatrix);
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
     gl.viewport(0, 0, 512, 512); // Set view port for FBO
-	
-	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-	gl.useProgram(shadowProgram);
-	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+    gl.useProgram(shadowProgram);
+    gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
-	gl.useProgram(program);
-	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shadowMap, fbo.texture);
+    gl.useProgram(program);
+    gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
-	
-    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
 
@@ -933,36 +933,36 @@ function walls()
 
 function lightBox() {
     var s = scale4(1.0, 1.0, 1.0);
-    var instanceMatrix = mult( translate( lightPosition[0], lightPosition[1], lightPosition[2]), s);
+    var instanceMatrix = mult(translate(lightPosition[0], lightPosition[1], lightPosition[2]), s);
     var t = mult(modelViewMatrix, instanceMatrix);
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); // Change the drawing destination to FBO
     gl.viewport(0, 0, 512, 512); // Set view port for FBO
-	
-	g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-	gl.useProgram(shadowProgram);
-	gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-	
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
+    gl.useProgram(shadowProgram);
+    gl.uniformMatrix4fv(shadowProgram.u_MvpMatrix, false, flatten(g_mvpMatrixFromLight));
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
-	gl.useProgram(program);
-	gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
-	gl.bindTexture(gl.TEXTURE_2D, texture);
-	gl.uniform1i(shadowMap, fbo.texture);
+    gl.useProgram(program);
+    gl.activeTexture(gl.TEXTURE0); // Set a texture object to the texture unit
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.uniform1i(shadowMap, fbo.texture);
     gl.uniformMatrix4fv(mvpMatrixFromLight, false, flatten(g_mvpMatrixFromLight));
-	
-    gl.uniformMatrix4fv(modelViewMatrixLoc,  false, flatten(t) );
+
+    gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
     g_normalMatrix = inverse(t);
     g_normalMatrix = transpose(g_normalMatrix);
     gl.uniformMatrix4fv(normalMatrix, false, flatten(g_normalMatrix));
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
 }
 
 //----------------------------------------------------------------------------------
 
 var renderHorse = function() {
-    gl.clear (gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     modelViewMatrix = translate(0, 0, 0);
     configureTexture(asuka);
@@ -971,89 +971,89 @@ var renderHorse = function() {
     var threshold = 15;
 
     if (stop == 0) {
-        anim=anim+animSign;
-        if (anim>threshold){
-            animSign=-1;
-        }else if (anim<-threshold){
-            animSign=1;
+        anim = anim + animSign;
+        if (anim > threshold) {
+            animSign = -1;
+        } else if (anim < -threshold) {
+            animSign = 1;
         }
-        var wiggle = anim ;
+        var wiggle = anim;
 
 
-        var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
-        var wallviewMatrix = rotate(0,0,1,0);
+        var baseViewMatrix = rotate(theta[0], 0, 1, 0);
+        var wallviewMatrix = rotate(0, 0, 1, 0);
         var x = Number(theta[1]) + wiggle;
         var x2 = Number(theta[1]) + wiggle;
-        modelViewMatrix = rotate(theta[0], 0, 1, 0 );
+        modelViewMatrix = rotate(theta[0], 0, 1, 0);
 
     } else {
-        anim=anim+animSign;
-        if (anim>threshold){
-            animSign=0;
-        }else if (anim<-threshold){
-            animSign=0;
+        anim = anim + animSign;
+        if (anim > threshold) {
+            animSign = 0;
+        } else if (anim < -threshold) {
+            animSign = 0;
         }
-        var wiggle = anim ;
+        var wiggle = anim;
 
 
-        var baseViewMatrix= rotate(theta[0], 0, 1, 0 );
-        var wallviewMatrix = rotate(0,0,1,0);
+        var baseViewMatrix = rotate(theta[0], 0, 1, 0);
+        var wallviewMatrix = rotate(0, 0, 1, 0);
         var x = Number(theta[1]) + wiggle;
         var x2 = Number(theta[1]) + wiggle;
-        modelViewMatrix = rotate(theta[0], 0, 1, 0 );
+        modelViewMatrix = rotate(theta[0], 0, 1, 0);
 
     }
     configureTexture(haruka);
     base();
 
     //Right Front Leg
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width / 2, horse.base.height / 2, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x / 60 + theta[2] / 60, 1));
     configureTexture(rio);
     upperArm();
 
     //Right Front Ankle
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 ,horse.upperArm.height-2, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(x2+15, -90, 0, 1) );
+    modelViewMatrix = mult(modelViewMatrix, translate(0.0, horse.upperArm.height - 2, 0.0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(x2 + 15, -90, 0, 1));
     configureTexture(rio);
     lowerArm();
 
     //right back
-    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0+x/60+theta[2]/60, 1) );
+    modelViewMatrix = mult(baseViewMatrix, translate(horse.base.width / 2, horse.base.height / 2, -horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 + x / 60 + theta[2] / 60, 1));
     configureTexture(asuka);
     upperArm();
 
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(x+15, -90, 0, 1) );
+    modelViewMatrix = mult(modelViewMatrix, translate(0.0, horse.upperArm.height - 2, 0.0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(x + 15, -90, 0, 1));
     configureTexture(asuka);
     lowerArm();
 
     //left front
-    modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2, horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
+    modelViewMatrix = mult(baseViewMatrix, translate(-horse.base.width / 2, horse.base.height / 2, horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 - x / 60 + theta[2] / 60, 1));
     configureTexture(rio);
     upperArm();
 
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
+    modelViewMatrix = mult(modelViewMatrix, translate(0.0, horse.upperArm.height - 2, 0.0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(x - 15, +90, 0, 1));
 
     configureTexture(rio);
     lowerArm();
 
     //left back
-    modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, horse.base.height/2,-horse.base.width/1.5));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 0-x/60+theta[2]/60, 1) );
+    modelViewMatrix = mult(baseViewMatrix, translate(-horse.base.width / 2, horse.base.height / 2, -horse.base.width / 1.5));
+    modelViewMatrix = mult(modelViewMatrix, rotate(180, 0, 0 - x / 60 + theta[2] / 60, 1));
     configureTexture(asuka);
     upperArm();
 
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0 , horse.upperArm.height-2, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(x-15, +90, 0, 1) );
+    modelViewMatrix = mult(modelViewMatrix, translate(0.0, horse.upperArm.height - 2, 0.0));
+    modelViewMatrix = mult(modelViewMatrix, rotate(x - 15, +90, 0, 1));
     configureTexture(asuka);
     lowerArm();
 
-    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height, -10));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix = mult(wallviewMatrix, translate(0, -wall.base.height, -10));
+    modelViewMatrix = mult(modelViewMatrix, rotate(90, 0, 90, 0));
     configureTexture(rio);
     walls();
 
@@ -1064,8 +1064,8 @@ var renderHorse = function() {
 var renderClaw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    modelViewMatrix = translate(0,0,0);
-    var wallviewMatrix = rotate(0,0,1,0);
+    modelViewMatrix = translate(0, 0, 0);
+    var wallviewMatrix = rotate(0, 0, 1, 0);
     lightBox();
 
     if (demo) {
@@ -1153,69 +1153,69 @@ var renderClaw = function() {
     drawComponent(clawMachine.lowerClaw3);
 
 
-    modelViewMatrix  = mult(wallviewMatrix, translate(0 , -wall.base.height, -10));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(90, 0, 90, 0) );
+    modelViewMatrix = mult(wallviewMatrix, translate(0, -wall.base.height, -10));
+    modelViewMatrix = mult(modelViewMatrix, rotate(90, 0, 90, 0));
     configureTexture(rio);
     walls();
 
 };
 
 function initFramebufferObject(gl) {
-  var framebuffer, texture, depthBuffer;
+    var framebuffer, texture, depthBuffer;
 
-  // Define the error handling function
-  var error = function() {
-    if (framebuffer) gl.deleteFramebuffer(framebuffer);
-    if (texture) gl.deleteTexture(texture);
-    if (depthBuffer) gl.deleteRenderbuffer(depthBuffer);
-    return null;
-  }
+    // Define the error handling function
+    var error = function() {
+        if (framebuffer) gl.deleteFramebuffer(framebuffer);
+        if (texture) gl.deleteTexture(texture);
+        if (depthBuffer) gl.deleteRenderbuffer(depthBuffer);
+        return null;
+    }
 
-  // Create a framebuffer object (FBO)
-  framebuffer = gl.createFramebuffer();
-  if (!framebuffer) {
-    console.log('Failed to create frame buffer object');
-    return error();
-  }
+    // Create a framebuffer object (FBO)
+    framebuffer = gl.createFramebuffer();
+    if (!framebuffer) {
+        console.log('Failed to create frame buffer object');
+        return error();
+    }
 
-  // Create a texture object and set its size and parameters
-  texture = gl.createTexture(); // Create a texture object
-  if (!texture) {
-    console.log('Failed to create texture object');
-    return error();
-  }
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 512, 512, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    // Create a texture object and set its size and parameters
+    texture = gl.createTexture(); // Create a texture object
+    if (!texture) {
+        console.log('Failed to create texture object');
+        return error();
+    }
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 512, 512, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-  // Create a renderbuffer object and Set its size and parameters
-  depthBuffer = gl.createRenderbuffer(); // Create a renderbuffer object
-  if (!depthBuffer) {
-    console.log('Failed to create renderbuffer object');
-    return error();
-  }
-  gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
-  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 512, 512);
+    // Create a renderbuffer object and Set its size and parameters
+    depthBuffer = gl.createRenderbuffer(); // Create a renderbuffer object
+    if (!depthBuffer) {
+        console.log('Failed to create renderbuffer object');
+        return error();
+    }
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 512, 512);
 
-  // Attach the texture and the renderbuffer object to the FBO
-  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+    // Attach the texture and the renderbuffer object to the FBO
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
 
-  // Check if FBO is configured correctly
-  var e = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-  if (gl.FRAMEBUFFER_COMPLETE !== e) {
-    console.log('Frame buffer object is incomplete: ' + e.toString());
-    return error();
-  }
+    // Check if FBO is configured correctly
+    var e = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (gl.FRAMEBUFFER_COMPLETE !== e) {
+        console.log('Frame buffer object is incomplete: ' + e.toString());
+        return error();
+    }
 
-  framebuffer.texture = texture; // keep the required object
+    framebuffer.texture = texture; // keep the required object
 
-  // Unbind the buffer object
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    // Unbind the buffer object
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
-  return framebuffer;
+    return framebuffer;
 }
