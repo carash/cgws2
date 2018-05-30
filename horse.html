@@ -129,11 +129,6 @@
                     </canvas>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-lg">
-                    <h3 style="text-align: center; margin-top: 40px; margin-bottom: 40px;">Model Control Panel</h3>
-                </div>
-            </div>
             <div class="row" style="margin-bottom: 40px;">
                 <div class="col-md" style="text-align: center;">
                     <button class="btn btn-default" id="demo" style="font-size: 24px; padding: 10px 20px; font-weight: bold;" disabled="disabled">
@@ -152,6 +147,25 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-lg">
+                    <div id="clawParam">
+                        <span>
+                            <pre>hold <strong>&lt;enter&gt;</strong> to extend arm, release to retract</pre>
+                        </span>
+                        <span>
+                            <pre>hold <strong>&lt;q&gt;</strong> to close claw, release to release</pre>
+                        </span>
+                        <span>
+                            <pre>hold <strong>&lt;left&gt;</strong>/<strong>&lt;right&gt;</strong> to move left/right</pre>
+                        </span>
+                        <span>
+                            <pre>hold <strong>&lt;a&gt;</strong>/<strong>&lt;d&gt;</strong> to rotate cw/ccw</pre>
+                        </span>
+                        <span>
+                            <pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
+                        </span>
+                    </div>
+                </div>
                 <div class="col-lg">
                     <div id="horseParam">
                         <div>
@@ -174,22 +188,18 @@
                     </div>
                 </div>
                 <div class="col-lg">
-                    <div id="clawParam">
-                        <span>
-                            <pre>hold <strong>&lt;enter&gt;</strong> to extend arm, release to retract</pre>
-                        </span>
-                        <span>
-                            <pre>hold <strong>&lt;q&gt;</strong> to close claw, release to release</pre>
-                        </span>
-                        <span>
-                            <pre>hold <strong>&lt;left&gt;</strong>/<strong>&lt;right&gt;</strong> to move left/right</pre>
-                        </span>
-                        <span>
-                            <pre>hold <strong>&lt;a&gt;</strong>/<strong>&lt;d&gt;</strong> to rotate cw/ccw</pre>
-                        </span>
-                        <span>
-                            <pre>hold <strong>&lt;w&gt;</strong>/<strong>&lt;s&gt;</strong> to tilt up/down</pre>
-                        </span>
+                    <div id="blockParam">
+                        <div>
+                            lower arm angle -15
+                            <input id="man-slider2" type="range" min="-15" max="15" step="1" value="0"/>
+                            15
+                        </div><br/>
+
+                        <div>
+                            upper arm angle -15
+                            <input id="man-slider3" type="range" min="-15" max="15" step="1" value="0"/>
+                            15
+                        </div><br/>
                     </div>
                 </div>
             </div>
