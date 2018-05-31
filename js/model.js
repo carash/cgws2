@@ -37,6 +37,8 @@ var texSize = 64;
 
 var wireframe = document.getElementsByName('wireframe');
 
+var pointLightPosition = vec4(-6.0, 1.0, 0.0, 0.0);
+
 var lightPosition = vec4(0.0, 0.0, 12.0, 0.0);
 var lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
 var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
@@ -497,7 +499,7 @@ window.onload = function init() {
 
 
     viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
-    viewProjMatrixFromLight = perspective(5.0, 1.0, 1.0, 100.0);
+    viewProjMatrixFromLight = perspective(20.0, 1.0, 1.0, 100.0);
     viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
     //
@@ -563,6 +565,8 @@ window.onload = function init() {
         flatten(specularProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
         flatten(lightPosition));
+    gl.uniform4fv(gl.getUniformLocation(program, "pointLightPosition"),
+        flatten(pointLightPosition));
 
     gl.uniform1f(gl.getUniformLocation(program, "shininess"),
         materialShininess);
@@ -593,7 +597,7 @@ window.onload = function init() {
     document.getElementById("stop-l").onclick = function(event) {
         isLightMove = !isLightMove;
     }
-	
+
     document.onkeydown = function(event) {
         switch(event.key) {
             case "i":
@@ -613,7 +617,7 @@ window.onload = function init() {
 					camx += 1;
                 break;
 		}
-		
+
 		if (!demo) {
 			switch (event.key) {
 				case "Enter":
@@ -688,6 +692,7 @@ window.onload = function init() {
 
     document.getElementById("slider1").onchange = function(event) {
         theta[0] = event.target.value;
+        gamma[0] = event.target.value;
     };
     document.getElementById("slider2").onchange = function(event) {
         theta[1] = event.target.value;
@@ -746,7 +751,7 @@ var display = function() {
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
         flatten(lightPosition));
 
-    viewProjMatrixFromLight = perspective(5.0, 1.0, 1.0, 100.0);
+    viewProjMatrixFromLight = perspective(20.0, 1.0, 1.0, 100.0);
     viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
     for (var i = 0, length = onLight.length; i < length; i++) {
@@ -774,20 +779,20 @@ var display = function() {
             break;
         }
     }
-	
+
 	if(isFreeCam){
 		projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
 		projectionMatrix = mult(projectionMatrix, lookAt(new vec3(camx, camy, camz), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
-		gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));		
+		gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
 	} else {
 		projectionMatrix = perspective(70.0, 1.0, 1.0, 100.0);
 		projectionMatrix = mult(projectionMatrix, lookAt(new vec3(-clawData.posx, 7, clawData.posx+2), new vec3(0, -20, 0), new vec3(0.0, 1.0, 0.0)));
 
 		gl.uniformMatrix4fv(gl.getUniformLocation(program, "projectionMatrix"), false, flatten(projectionMatrix));
 	}
-	
-	
+
+
     for (var i = 0, length = materials.length; i < length; i++) {
         if (materials[i].checked && materials[i].value == "gloss") {
             // do whatever you want with the checked radio
@@ -882,8 +887,7 @@ function drawComponent(comp) {
 
     if (isOn) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
         // configureTexture(black);
         // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
@@ -920,8 +924,7 @@ function base() {
 
     if (isOn) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
         // configureTexture(black);
         // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
@@ -958,8 +961,7 @@ function block() {
 
     if (isOn) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
         // configureTexture(black);
         // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
@@ -996,8 +998,7 @@ function upperArm() {
 
     if (isOn) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
         // configureTexture(black);
         // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
@@ -1034,8 +1035,7 @@ function blockmanArm() {
 
     if (isOn) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
         configureTexture(black);
         gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
@@ -1072,8 +1072,7 @@ function blockmanBody() {
 
     if (isOn) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
         configureTexture(black);
         gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
@@ -1110,8 +1109,7 @@ function lowerArm() {
 
     if (isOn) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
-        g_mvpMatrixFromLight = mult(translate(0, 0, -10), g_mvpMatrixFromLight);
-        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], 0), g_mvpMatrixFromLight);
+        g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
         // configureTexture(black);
         // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
@@ -1144,7 +1142,7 @@ function walls() {
 
 function lightBox() {
     var s = scale4(0.5, 0.5, 0.0001);
-    var instanceMatrix = mult(translate(lightPosition[0], lightPosition[1], lightPosition[2]), s);
+    var instanceMatrix = mult(translate(0, 0, -1), s);
     var t = mult(modelViewMatrix, instanceMatrix);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(t));
@@ -1159,8 +1157,11 @@ function lightBox() {
 var renderModel = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    modelViewMatrix = translate(0, 0, -1);
+    modelViewMatrix = translate(lightPosition[0], lightPosition[1], lightPosition[2]);
     configureTexture(light_icon);
+    lightBox();
+
+    modelViewMatrix = translate(pointLightPosition[0], pointLightPosition[1], pointLightPosition[2]);
     lightBox();
 
     var threshold = 15;
@@ -1288,6 +1289,31 @@ var renderModel = function() {
 
     }
 
+    //Just a BLOCK
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(0, horse.base.height*3, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 90, 0) );
+    configureTexture(wood);
+    block();
+
+    //Just a BLOCK
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width/2, -horse.base.height*5, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 90, 0) );
+    configureTexture(wood);
+    block();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(-horse.base.width/2, -horse.base.height*5, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 0, 90, 0) );
+    configureTexture(wood);
+    block();
+
+    modelViewMatrix  = mult(baseViewMatrix, translate(-2, -horse.base.height*4.25, horse.base.width/1.5));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(180, 90, 90, 0) );
+    configureTexture(wood);
+    lowerArm();
+
+    //Blockman
     modelViewMatrix  = mult(baseViewMatrix, translate(horse.base.width*1.5, horse.base.height*1.5, horse.base.width/1.5));
     modelViewMatrix  = mult(modelViewMatrix, rotate(180 - headTilt, 0, 90, 0) );
     configureTexture(wood);

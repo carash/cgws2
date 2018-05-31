@@ -39,6 +39,7 @@
         diffuseProduct,
         specularProduct;
         uniform vec4 lightPosition;
+        uniform vec4 pointLightPosition;
         uniform float shininess;
         uniform bool isOn;
 
@@ -48,6 +49,9 @@
         void main() {
             vec3 pos = (modelViewMatrix * vPosition).xyz;
 
+            /*
+            * PROJECTION LIGHT
+            */
             //fixed light postion
             vec3 light = lightPosition.xyz;
             vec3 L = normalize(light - pos);
@@ -67,12 +71,24 @@
             float Ks = pow(max(dot(N, H), 0.0), shininess);
             vec4 specular = Ks * specularProduct;
 
-            if (dot(L, N) < 0.0) {
+            /*
+             * POINT Light
+            */
+            vec3 L2 = normalize(pointLightPosition.xyz - pos);
+            vec3 H2 = normalize(L2 + E);
+
+            float pointLight = dot(N, L2);
+            if (pointLight > 0.0) {
+                specular = pow(dot(N, H2), 20.0) + specular;
+            }
+
+            if (dot(L, N) * pointLight < 0.0) {
                 specular = vec4(0.0, 0.0, 0.0, 1.0);
             }
 
+            // Assigning
             gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-            fColor = ambient * 0.1 + diffuse * 1.05 + specular;
+            fColor = ambient * 0.1 + ((pointLight + diffuse * 2.05) / 2.0) + specular;
             fColor.a = 1.0;
             fTexCoord = vTexCoord;
 
@@ -221,7 +237,9 @@
                         <input type="radio" name="material" value="matte">Brushed Metal<br>
                         <input type="radio" name="material" value="metallic">Stainless Steel<br>
                     </form>
-                    <form action="" autocomplete="off" style="margin-top: 20px;">
+                </div>
+                <div class="col-lg">
+                    <form action="" autocomplete="off">
                         <h1>Wireframe Mode</h1>
                         <input type="radio" name="wireframe" value="off" checked="checked">Off<br>
                         <input type="radio" name="wireframe" value="on">On<br>
