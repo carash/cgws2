@@ -87,10 +87,14 @@
             vec3 L3 = normalize(spotLightPosition.xyz - pos);
             vec3 H3 = normalize(L3 + E);
 
+            float spotLight = 0.9;
             float dotFromDirection = dot(L3, vec3(0, 0, 1));
-            float inLight = smoothstep(5.0, 10.0, dotFromDirection);
-            float spotLight = inLight * dot(N, L3);
-            specular = (inLight * pow(dot(N, H3), shininess)) + specular;
+            if (dotFromDirection >= 0.9) {
+                spotLight = dot(N, L3) * 3.0;
+                if (spotLight > 0.6) {
+                    specular += pow(dot(N, H3), shininess);
+                }
+            }
 
             if ((Kd * pointLight * 2.0) < 0.0) {
                 specular = vec4(0.0, 0.0, 0.0, 1.0);
@@ -98,7 +102,7 @@
 
             // Assigning
             gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-            fColor = ambient * 0.1 + (spotLight * 0.3) * (pointLight * 2.0) * (diffuse * 1.05) + specular;
+            fColor = ambient * 0.1 + spotLight * (pointLight * 2.0) * (diffuse * 1.05) + specular;
             fColor.a = 1.0;
             fTexCoord = vTexCoord;
 
@@ -157,6 +161,7 @@
             </div>
             <div class="row" style="margin-bottom: 40px; margin-top: 20px;">
                 <div class="col-md" style="text-align: center;">
+                    <h1>Animation Control</h1>
                     <button class="btn btn-default" id="demo" style="font-size: 24px; padding: 10px 20px; font-weight: bold;" disabled="disabled">
                         DEMO
                     </button>
@@ -165,17 +170,22 @@
                     </button>
                 </div>
                 <div class="col-md" style="text-align: center;">
+                    <h1>Directional Light Control</h1>
                     <button class="btn btn-default" id="stop-l" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
-                        STOP DIRECTIONAL<br>LIGHTING
+                        <div id="l-st">STOP</div>
+                        <div id="l-s" style='display:none;'>START</div>
                     </button>
                 </div>
                 <div class="col-lg">
                     <h1>Point Light Control</h1>
                     <div id="pointLightParam">
                         <div>
-                            X -15
-                            <input id="pointLight-slider1" type="range" min="-15" max="15" step="1" value="0"/>
-                            X +15
+                            <button class="btn btn-default" id="pointLight-btn1" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
+                                &lt;
+                            </button>
+                            <button class="btn btn-default" id="pointLight-btn2" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
+                                &gt;
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -183,9 +193,12 @@
                     <h1>Spot Light Control</h1>
                     <div id="spotLightParam">
                         <div>
-                            X -15
-                            <input id="spotLight-slider1" type="range" min="-15" max="15" step="1" value="0"/>
-                            X +15
+                            <button class="btn btn-default" id="spotLight-btn1" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
+                                &lt;
+                            </button>
+                            <button class="btn btn-default" id="spotLight-btn2" style="font-size: 24px; padding: 10px 20px; font-weight: bold;">
+                                &gt;
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -38,7 +38,7 @@ var texSize = 64;
 var wireframe = document.getElementsByName('wireframe');
 
 var pointLightPosition = vec4(-5.0, 1.0, 10.0, 0.0);
-var spotLightPosition = vec4(0.0, 0.0, 21.0, 0.0);
+var spotLightPosition = vec4(5.0, 2.0, 10.0, 0.0);
 
 var lightPosition = vec4(0.0, 0.0, 12.0, 0.0);
 var lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);
@@ -502,7 +502,7 @@ window.onload = function init() {
 
 
     viewProjMatrixFromLight = new mat4(); // Prepare a view projection matrix for generating a shadow map
-    viewProjMatrixFromLight = perspective(20.0, 1.0, 1.0, 100.0);
+    viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
     viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
     //
@@ -601,6 +601,38 @@ window.onload = function init() {
 
     document.getElementById("stop-l").onclick = function(event) {
         isLightMove = !isLightMove;
+
+        if (isLightMove) {
+            document.getElementById('l-st').style.display = 'block';
+            document.getElementById('l-s').style.display = 'none';
+        } else {
+            document.getElementById('l-st').style.display = 'none';
+            document.getElementById('l-s').style.display = 'block';
+        }
+    }
+
+    document.getElementById("pointLight-btn1").onclick = function(event) {
+        if (pointLightPosition[0] > -15) {
+            pointLightPosition[0] -= 0.5;
+        }
+    }
+
+    document.getElementById("pointLight-btn2").onclick = function(event) {
+        if (pointLightPosition[0] < 15) {
+            pointLightPosition[0] += 0.5;
+        }
+    }
+
+    document.getElementById("spotLight-btn1").onclick = function(event) {
+        if (spotLightPosition[0] > -15) {
+            spotLightPosition[0] -= 0.5;
+        }
+    }
+
+    document.getElementById("spotLight-btn2").onclick = function(event) {
+        if (spotLightPosition[0] < 15) {
+            spotLightPosition[0] += 0.5;
+        }
     }
 
     document.onkeydown = function(event) {
@@ -716,12 +748,6 @@ window.onload = function init() {
     document.getElementById("man-slider3").onchange = function(event) {
         gamma[2] = event.target.value;
     };
-    document.getElementById("pointLight-slider1").onchange = function(event) {
-        pointLightPosition[0] = event.target.value;
-    };
-    document.getElementById("spotLight-slider1").onchange = function(event) {
-        spotLightPosition[0] = event.target.value;
-    };
 
 
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
@@ -762,7 +788,7 @@ var display = function() {
     gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
         flatten(lightPosition));
 
-    viewProjMatrixFromLight = perspective(20.0, 1.0, 1.0, 100.0);
+    viewProjMatrixFromLight = perspective(10.0, 1.0, 1.0, 100.0);
     viewProjMatrixFromLight = mult(viewProjMatrixFromLight, lookAt(new vec3(lightPosition[0], lightPosition[1], lightPosition[2]), new vec3(0.0, 0.0, 0.0), new vec3(0.0, 1.0, 0.0)));
 
     for (var i = 0, length = onLight.length; i < length; i++) {
@@ -904,16 +930,16 @@ function drawComponent(comp) {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
-        // configureTexture(black);
-        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        // for (var i = 0, length = wireframe.length; i < length; i++) {
-        //     if (wireframe[i].checked && wireframe[i].value == "on") {
-        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-        //     }
-        //     if (wireframe[i].checked && wireframe[i].value == "off") {
-        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-        //     }
-        // }
+        configureTexture(black);
+        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        for (var i = 0, length = wireframe.length; i < length; i++) {
+            if (wireframe[i].checked && wireframe[i].value == "on") {
+                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+            }
+            if (wireframe[i].checked && wireframe[i].value == "off") {
+                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+            }
+        }
     }
 }
 
@@ -941,16 +967,16 @@ function base() {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
-        // configureTexture(black);
-        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        // for (var i = 0, length = wireframe.length; i < length; i++) {
-        //     if (wireframe[i].checked && wireframe[i].value == "on") {
-        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-        //     }
-        //     if (wireframe[i].checked && wireframe[i].value == "off") {
-        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-        //     }
-        // }
+        configureTexture(black);
+        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        for (var i = 0, length = wireframe.length; i < length; i++) {
+            if (wireframe[i].checked && wireframe[i].value == "on") {
+                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+            }
+            if (wireframe[i].checked && wireframe[i].value == "off") {
+                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+            }
+        }
     }
 }
 
@@ -978,16 +1004,16 @@ function block() {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
-        // configureTexture(black);
-        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        // for (var i = 0, length = wireframe.length; i < length; i++) {
-        //     if (wireframe[i].checked && wireframe[i].value == "on") {
-        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-        //     }
-        //     if (wireframe[i].checked && wireframe[i].value == "off") {
-        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-        //     }
-        // }
+        configureTexture(black);
+        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        for (var i = 0, length = wireframe.length; i < length; i++) {
+            if (wireframe[i].checked && wireframe[i].value == "on") {
+                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+            }
+            if (wireframe[i].checked && wireframe[i].value == "off") {
+                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+            }
+        }
     }
 }
 
@@ -1015,16 +1041,16 @@ function upperArm() {
         g_mvpMatrixFromLight = mult(viewProjMatrixFromLight, t);
         g_mvpMatrixFromLight = mult(translate(-lightPosition[0], -lightPosition[1], -8), g_mvpMatrixFromLight);
 
-        // configureTexture(black);
-        // gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
-        // for (var i = 0, length = wireframe.length; i < length; i++) {
-        //     if (wireframe[i].checked && wireframe[i].value == "on") {
-        //         gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
-        //     }
-        //     if (wireframe[i].checked && wireframe[i].value == "off") {
-        //         gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
-        //     }
-        // }
+        configureTexture(black);
+        gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(g_mvpMatrixFromLight));
+        for (var i = 0, length = wireframe.length; i < length; i++) {
+            if (wireframe[i].checked && wireframe[i].value == "on") {
+                gl.drawArrays(gl.LINE_STRIP, 0, NumVertices);
+            }
+            if (wireframe[i].checked && wireframe[i].value == "off") {
+                gl.drawArrays(gl.TRIANGLES, 0, NumVertices);
+            }
+        }
     }
 }
 
